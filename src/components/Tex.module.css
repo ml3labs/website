@@ -1,0 +1,5 @@
+/* Math also sits in uppercase, letter-spaced labels; keep both off it */
+.tex {
+    letter-spacing: 0;
+    text-transform: none;
+}

@@ -5,7 +5,7 @@ import { useSelectedLayoutSegment } from "next/navigation";
 
 import { ButtonLink } from "./Button";
 import { Crosses, VRule } from "./Grid";
-import { Mark, Name } from "./Mark";
+import { Mark } from "./Mark";
 import styles from "./Nav.module.css";
 import { SECTIONS, href } from "./siteData";
 
@@ -20,13 +20,17 @@ export function Nav() {
         <header className={styles.header}>
             <VRule />
             <nav aria-label="Main" className={styles.navRow}>
+                {/* The mark already reads ML³, so beside it the name is
+                    spelled out rather than repeated */}
                 <Link
                     href="/"
                     className={styles.brand}
                     aria-current={segment === null ? "page" : undefined}
                 >
                     <Mark className={styles.brandMark} />
-                    <Name />
+                    <span className={styles.brandName}>
+                        <span>McMaster</span> <span>Low Latency Labs</span>
+                    </span>
                 </Link>
                 <div className={styles.linksWrap}>
                     {/* The links get their own rule on phones only */}

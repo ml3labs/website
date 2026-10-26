@@ -1,12 +1,17 @@
 /* Phones: the label and value on one line over the scale. Wide: the label
    and a large value in the label column, the scale in the body. */
 
+/* --tone: ink while the latency is within the deadline, maroon past it */
 .knob {
     composes: row split from "./Grid.module.css";
     --thumb-w: 18px;
+    --tone: var(--ink);
     row-gap: 6px;
     padding-top: 16px;
     padding-bottom: 18px;
+}
+.knob[data-late="true"] {
+    --tone: var(--accent);
 }
 
 .head {
@@ -26,12 +31,6 @@
     text-transform: uppercase;
     color: var(--ink);
 }
-.label i {
-    margin-left: 2px;
-    font: italic 400 14px/1 var(--sans);
-    letter-spacing: 0;
-    text-transform: none;
-}
 
 .value {
     font-family: var(--mono);
@@ -40,7 +39,7 @@
     line-height: 1;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
-    color: var(--ink);
+    color: var(--tone);
 }
 .value small {
     margin-left: 4px;
@@ -48,9 +47,6 @@
     font-weight: 400;
     letter-spacing: 0.02em;
     color: var(--ink-muted);
-}
-.value[data-late="true"] {
-    color: var(--accent);
 }
 
 .body {
@@ -84,10 +80,7 @@
     left: 0;
     width: var(--val);
     height: 3px;
-    background: var(--ink);
-}
-.fill[data-late="true"] {
-    background: var(--accent);
+    background: var(--tone);
 }
 
 .unstable {
@@ -117,6 +110,13 @@
     position: absolute;
     top: 6px;
     right: 0;
+}
+/* On the narrowest phones it would run into the deadline's label; the
+   hatch and the verdict under the scale still say it */
+@media (max-width: 379px) {
+    .unstableLabel {
+        display: none;
+    }
 }
 
 .deadline {
@@ -186,9 +186,9 @@
     height: 30px;
     margin-top: 6px;
     background:
-        linear-gradient(var(--ink), var(--ink)) center / 1.5px 100% no-repeat,
+        linear-gradient(var(--tone), var(--tone)) center / 1.5px 100% no-repeat,
         var(--bg);
-    border: 1.5px solid var(--ink);
+    border: 1.5px solid var(--tone);
     border-radius: 0;
 }
 .range::-moz-range-thumb {
@@ -196,25 +196,10 @@
     width: var(--thumb-w);
     height: 30px;
     background:
-        linear-gradient(var(--ink), var(--ink)) center / 1.5px 100% no-repeat,
+        linear-gradient(var(--tone), var(--tone)) center / 1.5px 100% no-repeat,
         var(--bg);
-    border: 1.5px solid var(--ink);
+    border: 1.5px solid var(--tone);
     border-radius: 0;
-}
-
-.range[data-late="true"]::-webkit-slider-thumb {
-    background:
-        linear-gradient(var(--accent), var(--accent)) center / 1.5px 100%
-            no-repeat,
-        var(--bg);
-    border-color: var(--accent);
-}
-.range[data-late="true"]::-moz-range-thumb {
-    background:
-        linear-gradient(var(--accent), var(--accent)) center / 1.5px 100%
-            no-repeat,
-        var(--bg);
-    border-color: var(--accent);
 }
 
 .range:focus-visible::-webkit-slider-thumb {
@@ -250,10 +235,7 @@
     font-family: var(--mono);
     font-size: 11px;
     line-height: 1.5;
-    color: var(--ink);
-}
-.verdict[data-late="true"] {
-    color: var(--accent);
+    color: var(--tone);
 }
 
 @media (min-width: 900px) {

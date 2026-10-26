@@ -3,6 +3,8 @@ import { findDeadline, linearDelayMargin } from "@/lib/cartpole";
 import styles from "./ControlSection.module.css";
 import { ControlToy } from "./ControlToy";
 import { Crosses, VRule } from "./Grid";
+import { ModelDetails } from "./ModelDetails";
+import { Tex } from "./Tex";
 
 export function ControlSection() {
     // Bisection over the same simulation the toy runs (about 10 ms of
@@ -27,12 +29,18 @@ export function ControlSection() {
                         Make the controller late.
                     </h2>
                     <p className={styles.line}>
-                        It sees the pole <i>d</i> ms late. Push <i>d</i> past{" "}
-                        {deadline} ms and it falls.
+                        It sees the pole <Tex>d</Tex> ms late. Past {deadline}{" "}
+                        ms it can no longer settle. Push further and it falls.
                     </p>
                 </div>
             </div>
-            <ControlToy deadlineMs={deadline} marginMs={margin} />
+            <ControlToy
+                deadlineMs={deadline}
+                math={{ d: <Tex>d</Tex>, theta: <Tex>{"\\theta"}</Tex> }}
+                details={
+                    <ModelDetails deadlineMs={deadline} marginMs={margin} />
+                }
+            />
         </section>
     );
 }

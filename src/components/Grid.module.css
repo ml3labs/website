@@ -1,7 +1,7 @@
 /* The page is one timing diagram. Every row has a 1px rule on top, + marks
    where rules cross, a column rule at --c3 (wide screens) and the deadline
    at --D, with the late column after it. --pad, --late, --c3 and --D come
-   from the site frame (src/app/(site)/layout.module.css). */
+   from the site frame (src/app/layout.module.css). */
 
 .row {
     position: relative;
@@ -119,6 +119,50 @@
     padding: 0 var(--pad);
 }
 
+/* A figure's header row: its number and name on the left, readouts or
+   controls on the right. Wide, the number fills the label column. */
+.figHead {
+    composes: row;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    min-height: 44px;
+    padding-right: calc(var(--late) + var(--pad));
+    padding-left: var(--pad);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+.figNo {
+    color: var(--ink);
+    white-space: nowrap;
+}
+.figNo span {
+    margin-left: 10px;
+    color: var(--ink-muted);
+}
+
+/* Figure captions, led by the figure number in bold caps. .numbered gives
+   any other block the same number style. */
+.caption {
+    composes: numbered;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.55;
+}
+.numbered b {
+    margin-right: 10px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 @media (min-width: 900px) {
     .split {
         grid-template-columns: var(--c3) 1fr;
@@ -126,5 +170,10 @@
     .xC,
     .vr {
         display: block;
+    }
+    .figHead {
+        display: grid;
+        grid-template-columns: calc(var(--c3) - var(--pad)) 1fr auto;
+        gap: 0;
     }
 }

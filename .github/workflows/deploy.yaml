@@ -1,18 +1,21 @@
 name: Deploy to GitHub Pages
 
+# Pull requests get the same checks and build, without the deploy
 on:
     push:
         branches: ["main"]
+    pull_request:
     workflow_dispatch:
 
+# Read-only by default; only the deploy job can write to Pages
 permissions:
     contents: read
-    pages: write
-    id-token: write
 
+# One run per branch or pull request. A new push replaces a pull request's
+# run, but never cancels a deploy that is under way.
 concurrency:
-    group: "pages"
-    cancel-in-progress: true
+    group: pages-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
     build:
@@ -55,11 +58,16 @@ jobs:
             # artifact as-is, without a Jekyll pass to hide _next/ from, and
             # upload-pages-artifact v5 drops dotfiles by default anyway.
             - name: Upload artifact
+              if: github.event_name != 'pull_request'
               uses: actions/upload-pages-artifact@v5
               with:
                   path: ./out
 
     deploy:
+        if: github.event_name != 'pull_request'
+        permissions:
+            pages: write
+            id-token: write
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}

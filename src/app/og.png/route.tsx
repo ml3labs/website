@@ -32,9 +32,9 @@ const font = (file: string) =>
 
 export async function GET() {
     const [medium, semibold, mono] = await Promise.all([
-        font("InterTight-Medium.ttf"),
-        font("InterTight-SemiBold.ttf"),
-        font("IBMPlexMono-Medium.ttf"),
+        font("inter-tight-medium.ttf"),
+        font("inter-tight-semibold.ttf"),
+        font("ibm-plex-mono-medium.ttf"),
     ]);
 
     return new ImageResponse(
@@ -160,8 +160,7 @@ export async function GET() {
             height: OG_IMAGE.height,
             fonts: [
                 { name: "Inter Tight", data: medium, weight: 500 },
-                // The file is the 650 cut, the weight the site sets the name in;
-                // Satori only takes the standard steps, so it is filed under 600
+                // SemiBold (600), the weight the hero sets the name in
                 { name: "Inter Tight", data: semibold, weight: 600 },
                 { name: "IBM Plex Mono", data: mono, weight: 500 },
             ],

@@ -4,6 +4,12 @@ import { useEffect, useRef } from "react";
 import type { CSSProperties, PointerEvent } from "react";
 
 import { onFrame } from "@/lib/frameLoop";
+import {
+    BOOT_SWEEP_MS,
+    BOOT_T0_MS,
+    BOOT_TICK_MS,
+    prefersReducedMotion,
+} from "@/lib/motion";
 
 import { ButtonLink } from "./Button";
 import { Crosses, VRule } from "./Grid";
@@ -21,22 +27,17 @@ import { href } from "./siteData";
 // This component only adds two controls on top: Replay, and scrubbing the
 // clock by dragging across the mark.
 
-const SWEEP_MS = 480; // four ticks of 120 ms, as in the CSS
-
-// at: when each row flips, t0 (300 ms) + k ticks
+// Each row flips at t0 + k ticks
 const LEGEND = [
-    { k: 1, tick: "t1", signal: "bar-1", lo: "low", hi: "high", at: "420ms" },
-    { k: 2, tick: "t2", signal: "bar-2", lo: "low", hi: "high", at: "540ms" },
-    { k: 3, tick: "t3", signal: "bar-3", lo: "low", hi: "high", at: "660ms" },
-    {
-        k: 4,
-        tick: "t4",
-        signal: "³",
-        lo: "pending",
-        hi: "on deadline",
-        at: "780ms",
-    },
-];
+    { k: 1, signal: "bar-1", lo: "low", hi: "high" },
+    { k: 2, signal: "bar-2", lo: "low", hi: "high" },
+    { k: 3, signal: "bar-3", lo: "low", hi: "high" },
+    { k: 4, signal: "³", lo: "pending", hi: "on deadline" },
+].map((row) => ({
+    ...row,
+    tick: `t${row.k}`,
+    at: `${BOOT_T0_MS + row.k * BOOT_TICK_MS}ms`,
+}));
 
 const LAYERS = [
     { k: 1, d: MARK_BAR_1, cls: styles.l1, fill: styles.ink },
@@ -45,11 +46,14 @@ const LAYERS = [
     { k: 4, d: MARK_THREE, cls: styles.l4, fill: styles.accent },
 ];
 
+// The boot clock, for the CSS to time every step from
+const CLOCK = {
+    "--t0": `${BOOT_T0_MS}ms`,
+    "--tick": `${BOOT_TICK_MS}ms`,
+} as CSSProperties;
+
 // Four clock periods across the mark; the last rising edge is the deadline
 const CLK = "M0 13V1H50V13H100V1H150V13H200V1H250V13H300V1H350V13H400V1";
-
-const reducedMotion = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export function Hero() {
     const root = useRef<HTMLElement>(null);
@@ -102,7 +106,7 @@ export function Hero() {
     // loop of its own. Reduced motion skips straight to the end.
     const finish = () => {
         cancelFinish();
-        if (reducedMotion()) {
+        if (prefersReducedMotion()) {
             toStatic();
             return;
         }
@@ -110,7 +114,7 @@ export function Hero() {
         let t0 = -1;
         stopFinish.current = onFrame((now) => {
             if (t0 < 0) t0 = now;
-            const p = Math.min(1, from + (now - t0) / SWEEP_MS);
+            const p = Math.min(1, from + (now - t0) / BOOT_SWEEP_MS);
             setP(p);
             if (p >= 1) {
                 cancelFinish();
@@ -139,6 +143,12 @@ export function Hero() {
         const st = drag.current;
         const el = root.current;
         if (e.pointerId !== st.id || !el) return;
+        // The press ended off the scrubber before a drag began, so onUp
+        // never heard about it: this is a hover, not a drag
+        if (!st.on && e.buttons === 0) {
+            st.id = -1;
+            return;
+        }
         if (!st.on) {
             // Only a sideways drag scrubs, so a vertical swipe still scrolls
             const dx = Math.abs(e.clientX - st.x);
@@ -169,6 +179,7 @@ export function Hero() {
         <section
             ref={root}
             className={`${styles.hero} ${styles.boot}`}
+            style={CLOCK}
             aria-labelledby="site-name"
         >
             <div className={styles.cover} aria-hidden="true" />

@@ -2,7 +2,9 @@
 
 import {
     type MouseEvent,
+    type ReactNode,
     useEffect,
+    useLayoutEffect,
     useId,
     useMemo,
     useRef,
@@ -11,17 +13,15 @@ import {
 } from "react";
 
 import {
-    AUTO_NUDGE_MS,
     type CartPole,
     DEG,
-    GAINS,
     MAX_DELAY_MS,
     MODEL,
-    NUDGE,
     SCENARIO_MS,
     runScenario,
 } from "@/lib/cartpole";
 import { onFrame } from "@/lib/frameLoop";
+import { prefersReducedMotion, subscribeReducedMotion } from "@/lib/motion";
 
 import {
     applyMech,
@@ -38,28 +38,26 @@ import {
     scopeNodes,
 } from "./cartpolePaint";
 import styles from "./ControlToy.module.css";
+import { Mechanism, Scope } from "./CartPoleDrawings";
 import { Crosses, VRule } from "./Grid";
 import { LatencyKnob } from "./LatencyKnob";
 
 const INITIAL_DELAY_MS = 30;
 const CATCH_TILT = 0.5 * DEG;
 
-const RM = "(prefers-reduced-motion: reduce)";
-function subscribeRM(cb: () => void) {
-    const mq = window.matchMedia(RM);
-    mq.addEventListener("change", cb);
-    return () => mq.removeEventListener("change", cb);
-}
-const getRM = () => window.matchMedia(RM).matches;
-const getRMServer = () => false;
-
 type Props = {
     deadlineMs: number; // from findDeadline(), run at build time
-    marginMs: number; // from linearDelayMargin()
+    // Typeset by the server (Tex), so KaTeX never ships to the browser
+    math: { d: ReactNode; theta: ReactNode };
+    details: ReactNode;
 };
 
-export function ControlToy({ deadlineMs, marginMs }: Props) {
-    const reduced = useSyncExternalStore(subscribeRM, getRM, getRMServer);
+export function ControlToy({ deadlineMs, math, details }: Props) {
+    const reduced = useSyncExternalStore(
+        subscribeReducedMotion,
+        prefersReducedMotion,
+        () => false,
+    );
     const [delay, setDelay] = useState(INITIAL_DELAY_MS);
     const [liveFall, setLiveFall] = useState<number | null>(null);
     const [size, setSize] = useState({ w: 640, h: 320, sw: 640 });
@@ -80,8 +78,8 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
     const shown = useMemo(() => runScenario(scenarioDelay), [scenarioDelay]);
     const mg = useMemo(() => mechGeom(size.w, size.h), [size.w, size.h]);
     const sg = useMemo(() => scopeGeom(size.sw), [size.sw]);
-    const f0 = mechFrame(shown, mg);
-    const sc0 = scopeFrame(shown, sg);
+    const f0 = useMemo(() => mechFrame(shown, mg), [shown, mg]);
+    const sc0 = useMemo(() => scopeFrame(shown, sg), [shown, sg]);
 
     const fall = reduced
         ? shown.fallen
@@ -123,7 +121,8 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
         const mech = mechRef.current;
         const scope = scopeRef.current;
         if (!stage || !box || !mech || !scope) return;
-        if (!simRef.current) simRef.current = runScenario(INITIAL_DELAY_MS);
+        // Live, the still frame is the 8 s warm-up: carry on from a copy
+        if (!simRef.current) simRef.current = shown.clone();
         const sim = simRef.current;
         const mn = mechNodes(mech);
         const sn = scopeNodes(scope);
@@ -202,15 +201,18 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
             document.removeEventListener("visibilitychange", onVisibility);
             wakeRef.current = null;
         };
-    }, [reduced]);
+    }, [reduced, shown]);
 
+    // Also when the live loop starts, so a simulation created after the
+    // knob has moved runs at the knob's delay
     useEffect(() => {
         if (simRef.current) simRef.current.delay = delay;
-    }, [delay]);
+    }, [delay, reduced]);
 
     // A React render re-applies the first-frame attributes only when they
-    // change (a resize). Put the live pose back straight away.
-    useEffect(() => {
+    // change: a resize, or the drawings remounting. Put the live pose back
+    // before the browser paints.
+    useLayoutEffect(() => {
         if (reduced) return;
         const sim = simRef.current;
         const mech = mechRef.current;
@@ -218,7 +220,7 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
         if (!sim || !mech || !scope) return;
         applyMech(mechNodes(mech), mechFrame(sim, mg), true);
         applyScope(scopeNodes(scope), scopeFrame(sim, sg));
-    });
+    }, [reduced, mg, sg]);
 
     function nudge(dir: 1 | -1) {
         const sim = simRef.current;
@@ -239,10 +241,9 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
     function onStageClick(e: MouseEvent<HTMLDivElement>) {
         if ((e.target as Element).closest("[data-overlay]")) return;
         const sim = simRef.current;
-        const g = geomRef.current?.mg;
-        if (reduced || !sim || !g || sim.fallen) return;
+        if (reduced || !sim || sim.fallen) return;
         const rect = e.currentTarget.getBoundingClientRect();
-        const bobX = rect.left + (bobScreenX(sim, g) * rect.width) / g.w;
+        const bobX = rect.left + (bobScreenX(sim, mg) * rect.width) / mg.w;
         nudge(e.clientX < bobX ? 1 : -1);
     }
 
@@ -252,9 +253,6 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
     const clipId = `${uid}-clip`;
     const traceId = `${uid}-trace`;
     const capId = `${uid}-cap`;
-    const secTicks: number[] = [];
-    for (let k = 0; k <= SCENARIO_MS / 1000; k++) secTicks.push(k);
-    const yOf = (deg: number) => sg.mid - deg * sg.degPx;
 
     return (
         <figure className={styles.fig} aria-labelledby={capId}>
@@ -270,9 +268,7 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                         <dd>1 kHz</dd>
                     </div>
                     <div>
-                        <dt>
-                            <i>d</i>
-                        </dt>
+                        <dt>{math.d}</dt>
                         <dd data-late={late}>{delay} ms</dd>
                     </div>
                     <div>
@@ -298,212 +294,13 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                     data-reduced={reduced}
                     onClick={onStageClick}
                 >
-                    <svg
+                    <Mechanism
                         key={viewKey}
                         ref={mechRef}
-                        className={styles.mech}
-                        viewBox={`0 0 ${g.w} ${g.h}`}
-                        data-state={f0.state}
-                        role="img"
-                        aria-label="Line drawing of the simulated cart and pole"
-                    >
-                        <defs>
-                            <pattern
-                                id={hatchId}
-                                width="5"
-                                height="5"
-                                patternUnits="userSpaceOnUse"
-                                patternTransform="rotate(45)"
-                            >
-                                <line
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="5"
-                                    className={styles.hatchLine}
-                                />
-                            </pattern>
-                        </defs>
-
-                        {/* The floor runs on past both ends, so it stays put
-                            while the rest pans */}
-                        <path
-                            className={styles.floor}
-                            d={`M12 ${g.railY}H${g.w - 12}`}
-                        />
-
-                        <g data-k="view" transform={f0.view}>
-                            {/* Track and end stops */}
-                            <rect
-                                x={g.cx - g.trackEnd - g.stopW - 10}
-                                y={g.railY + 0.5}
-                                width={2 * (g.trackEnd + g.stopW + 10)}
-                                height={8}
-                                fill={`url(#${hatchId})`}
-                            />
-                            <path
-                                className={styles.track}
-                                d={`M${g.cx - g.trackEnd} ${g.railY - 1}H${g.cx + g.trackEnd}`}
-                            />
-                            <rect
-                                className={styles.stop}
-                                x={g.cx - g.trackEnd - g.stopW}
-                                y={g.railY - g.stopH}
-                                width={g.stopW}
-                                height={g.stopH}
-                            />
-                            <rect
-                                className={styles.stop}
-                                x={g.cx + g.trackEnd}
-                                y={g.railY - g.stopH}
-                                width={g.stopW}
-                                height={g.stopH}
-                            />
-                            <path
-                                className={styles.centerline}
-                                d={`M${g.cx} ${g.railY + 30}V${g.pivotY - g.L - 24}`}
-                            />
-
-                            {/* What the controller sees: the state d ms ago */}
-                            <g data-k="ghost" visibility={f0.ghost}>
-                                <g data-k="gcart" transform={f0.gcart}>
-                                    <rect
-                                        className={styles.ghostShape}
-                                        x={g.cx - g.cw / 2}
-                                        y={g.pivotY}
-                                        width={g.cw}
-                                        height={g.ch}
-                                    />
-                                </g>
-                                <g data-k="gpole" transform={f0.gpole}>
-                                    <path
-                                        className={styles.ghostShape}
-                                        d={`M0 0V${-(g.L - g.br)}`}
-                                    />
-                                    <circle
-                                        className={styles.ghostShape}
-                                        cx="0"
-                                        cy={-g.L}
-                                        r={g.br}
-                                    />
-                                </g>
-                            </g>
-
-                            <path
-                                data-k="vref"
-                                className={styles.vref}
-                                d={f0.vref}
-                            />
-                            <path
-                                data-k="arc"
-                                className={styles.dim}
-                                d={f0.arc}
-                            />
-                            <path
-                                data-k="xdim"
-                                className={styles.dim}
-                                d={f0.xdim}
-                            />
-
-                            <g data-k="cart" transform={f0.cart}>
-                                {[-1, 1].map((side) => (
-                                    <g key={side}>
-                                        <circle
-                                            className={styles.wheel}
-                                            cx={g.cx + side * g.cw * 0.3}
-                                            cy={g.railY - 2 - g.wr}
-                                            r={g.wr}
-                                        />
-                                        <circle
-                                            className={styles.hub}
-                                            cx={g.cx + side * g.cw * 0.3}
-                                            cy={g.railY - 2 - g.wr}
-                                            r={1.5}
-                                        />
-                                    </g>
-                                ))}
-                                <rect
-                                    className={styles.cartBody}
-                                    x={g.cx - g.cw / 2}
-                                    y={g.pivotY}
-                                    width={g.cw}
-                                    height={g.ch}
-                                />
-                                {g.showMass && (
-                                    <text
-                                        className={styles.mass}
-                                        x={g.cx}
-                                        y={g.pivotY + g.ch / 2 + 3.5}
-                                        textAnchor="middle"
-                                    >
-                                        {MODEL.cartMass.toFixed(1)} kg
-                                    </text>
-                                )}
-                            </g>
-
-                            <g data-k="pole" transform={f0.pole}>
-                                <path
-                                    className={styles.rod}
-                                    d={`M0 0V${-(g.L - g.br)}`}
-                                />
-                                <circle
-                                    className={styles.bob}
-                                    cx="0"
-                                    cy={-g.L}
-                                    r={g.br}
-                                />
-                                <circle
-                                    className={styles.pivot}
-                                    cx="0"
-                                    cy="0"
-                                    r="3.5"
-                                />
-                            </g>
-
-                            <path
-                                data-k="force"
-                                className={styles.force}
-                                d={f0.force}
-                            />
-                            <text
-                                data-k="th"
-                                className={styles.value}
-                                x={f0.th.x}
-                                y={f0.th.y}
-                                textAnchor={f0.th.anchor}
-                            >
-                                {f0.th.text}
-                            </text>
-                            <text
-                                data-k="u"
-                                className={styles.value}
-                                x={f0.u.x}
-                                y={f0.u.y}
-                                textAnchor={f0.u.anchor}
-                            >
-                                {f0.u.text || " "}
-                            </text>
-                            <text
-                                data-k="x"
-                                className={styles.value}
-                                x={f0.x.x}
-                                y={f0.x.y}
-                                textAnchor={f0.x.anchor}
-                            >
-                                {f0.x.text}
-                            </text>
-                            <g
-                                data-k="nudge"
-                                transform={f0.nudge}
-                                opacity={f0.nudgeOpacity}
-                            >
-                                <path
-                                    className={styles.force}
-                                    d={`M${-(g.br + 30)} 0H${-(g.br + 5)}M${-(g.br + 5)} 0l-6 -3.5M${-(g.br + 5)} 0l-6 3.5`}
-                                />
-                            </g>
-                        </g>
-                    </svg>
+                        g={g}
+                        f0={f0}
+                        hatchId={hatchId}
+                    />
 
                     {fall === null ? (
                         <div className={styles.legend} aria-hidden="true">
@@ -600,6 +397,7 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                 value={delay}
                 max={MAX_DELAY_MS}
                 deadline={deadlineMs}
+                symbol={math.d}
                 onChange={setDelay}
             />
 
@@ -608,12 +406,13 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                 <VRule />
                 <div className={styles.scopeHead}>
                     <span>
-                        <b>Fig. 4</b>Pole angle θ, {reduced ? "first" : "last"}{" "}
-                        {SCENARIO_MS / 1000} s
+                        <b>Fig. 4</b>Pole angle {math.theta},{" "}
+                        {reduced ? "first" : "last"} {SCENARIO_MS / 1000} s
                     </span>
                     <span className={styles.scopeKey} aria-hidden="true">
                         <span>
-                            <i className={styles.keySolid} />θ
+                            <i className={styles.keySolid} />
+                            {math.theta}
                         </span>
                         <span>
                             <i className={styles.keyDashed} />
@@ -625,169 +424,34 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                         </span>
                     </span>
                 </div>
-                <div ref={scopeBoxRef} className={styles.scopeBox}>
-                    <svg
+                <div
+                    ref={scopeBoxRef}
+                    className={styles.scopeBox}
+                    style={{ height: SCOPE_H }}
+                >
+                    <Scope
                         key={viewKey}
                         ref={scopeRef}
-                        className={styles.scope}
-                        viewBox={`0 0 ${sg.w} ${SCOPE_H}`}
-                        role="img"
-                        aria-label={`Trace of the pole angle over ${
-                            reduced ? "the first" : "the last"
-                        } ${SCENARIO_MS / 1000} seconds`}
-                    >
-                        <defs>
-                            <clipPath id={clipId}>
-                                <rect
-                                    x={sg.left}
-                                    y={sg.top}
-                                    width={sg.right - sg.left}
-                                    height={sg.bottom - sg.top}
-                                />
-                            </clipPath>
-                            <polyline
-                                id={traceId}
-                                data-k="trace"
-                                points={sc0.points}
-                                fill="none"
-                            />
-                        </defs>
-                        {[-20, -10, 10, 20].map((d) => (
-                            <path
-                                key={d}
-                                className={styles.grid}
-                                d={`M${sg.left} ${yOf(d)}H${sg.right}`}
-                            />
-                        ))}
-                        <path
-                            className={styles.zero}
-                            d={`M${sg.left} ${sg.mid}H${sg.right}`}
-                        />
-                        {[20, 0, -20].map((d) => (
-                            <text
-                                key={d}
-                                className={styles.axis}
-                                x={sg.left - 6}
-                                y={yOf(d) + 3.5}
-                                textAnchor="end"
-                            >
-                                {d > 0 ? `+${d}°` : d < 0 ? `−${-d}°` : "0°"}
-                            </text>
-                        ))}
-                        {secTicks.map((k) => (
-                            <path
-                                key={k}
-                                className={styles.zero}
-                                d={`M${sg.right - k * 1000 * sg.msPx} ${sg.bottom}v4`}
-                            />
-                        ))}
-                        {(reduced
-                            ? (["0 s", "4 s", "8 s"] as const)
-                            : (["−8 s", "−4 s", "now"] as const)
-                        ).map((t, i) => (
-                            <text
-                                key={t}
-                                className={styles.axis}
-                                x={sg.left + (i * (sg.right - sg.left)) / 2}
-                                y={sg.bottom + 15}
-                                textAnchor={
-                                    i === 0
-                                        ? "start"
-                                        : i === 1
-                                          ? "middle"
-                                          : "end"
-                                }
-                            >
-                                {t}
-                            </text>
-                        ))}
-                        <rect
-                            className={styles.plotFrame}
-                            x={sg.left}
-                            y={sg.top}
-                            width={sg.right - sg.left}
-                            height={sg.bottom - sg.top}
-                        />
-                        <g clipPath={`url(#${clipId})`}>
-                            <use
-                                href={`#${traceId}`}
-                                data-k="ghostTrace"
-                                className={styles.traceGhost}
-                                transform={sc0.ghost}
-                            />
-                            <use
-                                href={`#${traceId}`}
-                                className={styles.trace}
-                            />
-                            <path
-                                data-k="fall"
-                                className={styles.fallMark}
-                                d={sc0.fall}
-                            />
-                        </g>
-                        <path
-                            data-k="marks"
-                            className={styles.marks}
-                            d={sc0.marks}
-                        />
-                    </svg>
+                        sg={sg}
+                        sc0={sc0}
+                        reduced={reduced}
+                        clipId={clipId}
+                        traceId={traceId}
+                    />
                 </div>
             </div>
 
-            <figcaption id={capId} className={styles.caption}>
+            <figcaption className={styles.caption}>
                 <Crosses />
                 <VRule />
                 <p className={styles.capLabel}>Model</p>
                 <div className={styles.capBody}>
-                    <p className={styles.capText}>
+                    <p id={capId} className={styles.capText}>
                         <b>Fig. 3</b>A cart-pole under state feedback, read{" "}
-                        <i>d</i> ms late.{" "}
+                        {math.d} ms late.{" "}
                         <span className={styles.tag}>Simulated</span>
                     </p>
-                    {/* The model's parameters, collapsed under the figure */}
-                    <details className={styles.more}>
-                        <summary>Model details</summary>
-                        <dl className={styles.model}>
-                            <div>
-                                <dt>Plant</dt>
-                                <dd>
-                                    Cart {MODEL.cartMass.toFixed(1)} kg on a ±
-                                    {MODEL.trackHalf} m track. Pole:{" "}
-                                    {MODEL.poleMass} kg point mass on a{" "}
-                                    {MODEL.poleLength} m massless rod.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Controller</dt>
-                                <dd>
-                                    u = {GAINS.th}θ + {GAINS.om}ω + {GAINS.x}x +{" "}
-                                    {GAINS.v}v, clipped to ±{MODEL.forceLimit}{" "}
-                                    N. LQR gains, rounded. It reads the state
-                                    from a ring buffer, <i>d</i> steps back.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Physics</dt>
-                                <dd>
-                                    RK4, fixed {MODEL.stepMs} ms step. The
-                                    controller runs every step (1 kHz). Test
-                                    nudge: {NUDGE} rad/s every{" "}
-                                    {AUTO_NUDGE_MS / 1000} s, alternating sides.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Deadline</dt>
-                                <dd>
-                                    <b>{deadlineMs} ms</b>: the largest <i>d</i>{" "}
-                                    at which a 1 µrad tilt still dies out, found
-                                    by bisection on this simulation at build
-                                    time. The linearised loop&apos;s delay
-                                    margin, {marginMs.toFixed(1)} ms, agrees to
-                                    within a step.
-                                </dd>
-                            </div>
-                        </dl>
-                    </details>
+                    {details}
                 </div>
             </figcaption>
         </figure>
