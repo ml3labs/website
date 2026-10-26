@@ -17,8 +17,9 @@ import styles from "./TimingStrip.module.css";
 //   met    ACK resolves with slack before the deadline
 //   late   the same handshake, ACK half a cycle past it
 //   empty  no request yet, so ACK stays undefined (x) throughout
+//   lost   REQ goes up and stays up; nothing ever answers
 
-export type Variant = "met" | "late" | "empty";
+export type Variant = "met" | "late" | "empty" | "lost";
 
 type Level = 0 | 1 | "x";
 type Seg = [cycle: number, level: Level];
@@ -159,6 +160,13 @@ function draw(g: Geo, variant: Variant) {
         },
         empty: {
             req: [[0, 0]],
+            ack: [[0, "x"]],
+        },
+        lost: {
+            req: [
+                [0, 0],
+                [d - 6, 1],
+            ],
             ack: [[0, "x"]],
         },
     };

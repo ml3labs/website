@@ -52,8 +52,8 @@ export const metadata: Metadata = {
     twitter,
 };
 
-// The site's chrome around every page: the fonts, the nav, the deadline
-// down <main> and the footer
+// The site's chrome around every page, the 404 included: the fonts, the
+// nav, the deadline down <main> and the footer
 export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html lang="en">
