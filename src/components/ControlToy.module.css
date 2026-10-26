@@ -1,0 +1,574 @@
+/* The cart-pole figure, as rows of the page's diagram: a header with the
+   readouts, the drawing, the latency knob, the trace and the caption. On
+   wide screens labels and controls take the label column and the
+   drawings end exactly at the deadline. Nothing here may set
+   container-type: the rows' + marks resolve --D against the site frame. */
+
+.fig {
+    margin: 0;
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tag,
+.status {
+    padding: 3px 6px 2px;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- header */
+
+.meta {
+    composes: row from "./Grid.module.css";
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    min-height: 44px;
+    padding: 10px calc(var(--late) + var(--pad)) 10px var(--pad);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+.metaFig {
+    color: var(--ink);
+    white-space: nowrap;
+}
+.metaFig span {
+    margin-left: 10px;
+    color: var(--ink-muted);
+}
+
+/* Phones: the figure name and tag on one line, the readouts under them */
+.readouts {
+    order: 1;
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin: 0;
+}
+.readouts > div {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.readouts dt {
+    font-size: 10.5px;
+}
+.readouts dt i {
+    font: italic 400 13px/1 var(--sans);
+    letter-spacing: 0;
+    text-transform: none;
+}
+.readouts dd {
+    margin: 0;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+.readouts dd[data-late="true"] {
+    color: var(--accent);
+}
+.readouts .status {
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+/* Missed snaps to a filled maroon chip, like a pressed button */
+.readouts .status[data-late="true"] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+}
+
+@media (min-width: 900px) {
+    .meta {
+        display: grid;
+        grid-template-columns: calc(var(--c3) - var(--pad)) 1fr auto;
+        gap: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    .readouts {
+        order: 0;
+        padding-left: var(--pad);
+    }
+}
+
+/* ------------------------------------------------------------------ stage */
+
+.stageRow {
+    composes: row split from "./Grid.module.css";
+}
+
+/* Edge to edge, from the frame (or the column rule) to the deadline */
+.stage {
+    position: relative;
+    height: clamp(248px, 72cqw, 336px);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+.stage[data-reduced="true"] {
+    cursor: default;
+}
+
+.mech {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.floor {
+    stroke: var(--ink);
+    stroke-width: 1;
+}
+.hatchLine {
+    stroke: var(--ink-soft);
+    stroke-width: 1;
+}
+.track {
+    stroke: var(--ink);
+    stroke-width: 2;
+}
+.stop {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.25;
+}
+
+/* Centre lines, dash-dot as on a drawing */
+.centerline,
+.vref {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1;
+    stroke-dasharray: 12 3 2 3;
+}
+
+.ghostShape {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1.25;
+    stroke-dasharray: 4 3;
+}
+
+.cartBody {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+}
+.wheel {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.25;
+}
+.hub {
+    fill: var(--ink);
+}
+.mass {
+    fill: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+}
+
+.rod {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+}
+.bob {
+    fill: var(--ink);
+}
+.pivot {
+    fill: var(--bg);
+    stroke: var(--ink);
+    stroke-width: 1.25;
+}
+.mech[data-state="fallen"] .rod {
+    stroke: var(--accent);
+}
+.mech[data-state="fallen"] .bob {
+    fill: var(--accent);
+}
+
+.dim {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+}
+.force {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.value {
+    fill: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Legend and fall notice float over the drawing's empty top band */
+.legend {
+    position: absolute;
+    top: 12px;
+    left: var(--pad);
+    right: var(--pad);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 16px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+    pointer-events: none;
+}
+.legend span,
+.scopeKey span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.keySolid,
+.keyDashed {
+    display: inline-block;
+    width: 18px;
+    height: 0;
+    border-top: 2px solid var(--ink);
+}
+.keyDashed {
+    border-top: 1.5px dashed var(--ink-soft);
+}
+.keyMark {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 3.5px solid transparent;
+    border-right: 3.5px solid transparent;
+    border-top: 6px solid var(--ink-muted);
+}
+
+.fallen {
+    position: absolute;
+    top: 12px;
+    left: var(--pad);
+    max-width: min(30rem, calc(100% - 2 * var(--pad)));
+    padding: 12px 14px 14px;
+    border: 1px solid var(--accent);
+    background: var(--bg);
+    cursor: default;
+}
+.fallenTitle {
+    margin: 0;
+    color: var(--accent);
+    font-size: clamp(20px, 6cqw, 30px);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+.fallenNote {
+    margin: 6px 0 0;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.catch {
+    composes: btn primary small from "./Button.module.css";
+    margin-top: 12px;
+}
+
+/* --------------------------------------------------------------- controls */
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 12px var(--pad) 16px;
+}
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tool {
+    composes: tool from "./Button.module.css";
+}
+.note {
+    margin: 0;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+@media (min-width: 900px) {
+    .stageRow {
+        grid-template-areas: "side stage";
+    }
+    .stage {
+        grid-area: stage;
+        height: 336px;
+    }
+    .controls {
+        grid-area: side;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        padding: 0 var(--pad) 28px;
+    }
+}
+
+/* ------------------------------------------------------------------ trace */
+
+.scopeRow {
+    composes: row split from "./Grid.module.css";
+    row-gap: 8px;
+    padding-top: 16px;
+    padding-bottom: 12px;
+}
+
+.scopeHead {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 14px;
+    padding: 0 var(--pad);
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+.scopeHead b {
+    margin-right: 10px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.scopeKey {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+}
+
+.scopeBox {
+    position: relative;
+    height: 112px;
+    margin: 0 var(--pad);
+}
+.scope {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.plotFrame {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1;
+}
+.grid {
+    stroke: var(--ink);
+    stroke-opacity: 0.1;
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+}
+.zero {
+    stroke: var(--ink-soft);
+    stroke-width: 1;
+}
+.axis {
+    fill: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-variant-numeric: tabular-nums;
+}
+.trace {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+}
+.traceGhost {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1.25;
+    stroke-dasharray: 4 3;
+}
+.marks {
+    fill: var(--ink-muted);
+}
+.fallMark {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.25;
+}
+
+@media (min-width: 900px) {
+    .scopeRow {
+        padding-top: 22px;
+        padding-bottom: 18px;
+    }
+    .scopeHead {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+    .scopeKey {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* ---------------------------------------------------------------- caption */
+
+.caption {
+    composes: row split from "./Grid.module.css";
+    row-gap: 12px;
+    padding-top: 16px;
+    padding-bottom: 32px;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.55;
+}
+.capLabel {
+    composes: label from "./Grid.module.css";
+}
+.capBody {
+    composes: body from "./Grid.module.css";
+}
+
+.capText {
+    max-width: 62em;
+    margin: 0;
+}
+.capText b {
+    margin-right: 10px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.capText .tag {
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: 1px;
+}
+
+.caption i {
+    font: italic 400 12.5px/1 var(--sans);
+}
+
+/* Closed by default; the summary is a quiet mono toggle */
+.more {
+    margin-top: 12px;
+}
+.more summary {
+    width: fit-content;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.more summary::-webkit-details-marker {
+    display: none;
+}
+.more summary::before {
+    content: "+";
+    display: inline-block;
+    width: 2ch;
+    color: var(--accent);
+}
+.more[open] summary::before {
+    content: "−";
+}
+.more summary:hover {
+    color: var(--accent);
+}
+.more summary:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* Each entry under its own hairline, two to a row on wide screens */
+.model {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px 32px;
+    margin: 14px 0 0;
+}
+.model > div {
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+}
+.model dt {
+    margin-bottom: 4px;
+    color: var(--ink-muted);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.model dd {
+    margin: 0;
+}
+.model b {
+    color: var(--ink);
+    font-weight: 500;
+}
+
+@media (min-width: 600px) {
+    .model {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 900px) {
+    .caption {
+        padding-top: 22px;
+        padding-bottom: 48px;
+    }
+}
