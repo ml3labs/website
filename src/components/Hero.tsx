@@ -139,6 +139,12 @@ export function Hero() {
         const st = drag.current;
         const el = root.current;
         if (e.pointerId !== st.id || !el) return;
+        // The press ended off the scrubber before a drag began, so onUp
+        // never heard about it: this is a hover, not a drag
+        if (!st.on && e.buttons === 0) {
+            st.id = -1;
+            return;
+        }
         if (!st.on) {
             // Only a sideways drag scrubs, so a vertical swipe still scrolls
             const dx = Math.abs(e.clientX - st.x);

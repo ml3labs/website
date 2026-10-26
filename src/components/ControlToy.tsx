@@ -2,7 +2,9 @@
 
 import {
     type MouseEvent,
+    type ReactNode,
     useEffect,
+    useLayoutEffect,
     useId,
     useMemo,
     useRef,
@@ -11,13 +13,10 @@ import {
 } from "react";
 
 import {
-    AUTO_NUDGE_MS,
     type CartPole,
     DEG,
-    GAINS,
     MAX_DELAY_MS,
     MODEL,
-    NUDGE,
     SCENARIO_MS,
     runScenario,
 } from "@/lib/cartpole";
@@ -55,10 +54,12 @@ const getRMServer = () => false;
 
 type Props = {
     deadlineMs: number; // from findDeadline(), run at build time
-    marginMs: number; // from linearDelayMargin()
+    // Typeset by the server (Tex), so KaTeX never ships to the browser
+    math: { d: ReactNode; theta: ReactNode };
+    details: ReactNode;
 };
 
-export function ControlToy({ deadlineMs, marginMs }: Props) {
+export function ControlToy({ deadlineMs, math, details }: Props) {
     const reduced = useSyncExternalStore(subscribeRM, getRM, getRMServer);
     const [delay, setDelay] = useState(INITIAL_DELAY_MS);
     const [liveFall, setLiveFall] = useState<number | null>(null);
@@ -204,13 +205,15 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
         };
     }, [reduced]);
 
+    // Also when the live loop starts, so a simulation created after the
+    // knob has moved runs at the knob's delay
     useEffect(() => {
         if (simRef.current) simRef.current.delay = delay;
-    }, [delay]);
+    }, [delay, reduced]);
 
     // A React render re-applies the first-frame attributes only when they
-    // change (a resize). Put the live pose back straight away.
-    useEffect(() => {
+    // change (a resize). Put the live pose back before the browser paints.
+    useLayoutEffect(() => {
         if (reduced) return;
         const sim = simRef.current;
         const mech = mechRef.current;
@@ -270,9 +273,7 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                         <dd>1 kHz</dd>
                     </div>
                     <div>
-                        <dt>
-                            <i>d</i>
-                        </dt>
+                        <dt>{math.d}</dt>
                         <dd data-late={late}>{delay} ms</dd>
                     </div>
                     <div>
@@ -600,6 +601,7 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                 value={delay}
                 max={MAX_DELAY_MS}
                 deadline={deadlineMs}
+                symbol={math.d}
                 onChange={setDelay}
             />
 
@@ -608,12 +610,13 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                 <VRule />
                 <div className={styles.scopeHead}>
                     <span>
-                        <b>Fig. 4</b>Pole angle θ, {reduced ? "first" : "last"}{" "}
-                        {SCENARIO_MS / 1000} s
+                        <b>Fig. 4</b>Pole angle {math.theta},{" "}
+                        {reduced ? "first" : "last"} {SCENARIO_MS / 1000} s
                     </span>
                     <span className={styles.scopeKey} aria-hidden="true">
                         <span>
-                            <i className={styles.keySolid} />θ
+                            <i className={styles.keySolid} />
+                            {math.theta}
                         </span>
                         <span>
                             <i className={styles.keyDashed} />
@@ -734,60 +737,17 @@ export function ControlToy({ deadlineMs, marginMs }: Props) {
                 </div>
             </div>
 
-            <figcaption id={capId} className={styles.caption}>
+            <figcaption className={styles.caption}>
                 <Crosses />
                 <VRule />
                 <p className={styles.capLabel}>Model</p>
                 <div className={styles.capBody}>
-                    <p className={styles.capText}>
+                    <p id={capId} className={styles.capText}>
                         <b>Fig. 3</b>A cart-pole under state feedback, read{" "}
-                        <i>d</i> ms late.{" "}
+                        {math.d} ms late.{" "}
                         <span className={styles.tag}>Simulated</span>
                     </p>
-                    {/* The model's parameters, collapsed under the figure */}
-                    <details className={styles.more}>
-                        <summary>Model details</summary>
-                        <dl className={styles.model}>
-                            <div>
-                                <dt>Plant</dt>
-                                <dd>
-                                    Cart {MODEL.cartMass.toFixed(1)} kg on a ±
-                                    {MODEL.trackHalf} m track. Pole:{" "}
-                                    {MODEL.poleMass} kg point mass on a{" "}
-                                    {MODEL.poleLength} m massless rod.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Controller</dt>
-                                <dd>
-                                    u = {GAINS.th}θ + {GAINS.om}ω + {GAINS.x}x +{" "}
-                                    {GAINS.v}v, clipped to ±{MODEL.forceLimit}{" "}
-                                    N. LQR gains, rounded. It reads the state
-                                    from a ring buffer, <i>d</i> steps back.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Physics</dt>
-                                <dd>
-                                    RK4, fixed {MODEL.stepMs} ms step. The
-                                    controller runs every step (1 kHz). Test
-                                    nudge: {NUDGE} rad/s every{" "}
-                                    {AUTO_NUDGE_MS / 1000} s, alternating sides.
-                                </dd>
-                            </div>
-                            <div>
-                                <dt>Deadline</dt>
-                                <dd>
-                                    <b>{deadlineMs} ms</b>: the largest <i>d</i>{" "}
-                                    at which a 1 µrad tilt still dies out, found
-                                    by bisection on this simulation at build
-                                    time. The linearised loop&apos;s delay
-                                    margin, {marginMs.toFixed(1)} ms, agrees to
-                                    within a step.
-                                </dd>
-                            </div>
-                        </dl>
-                    </details>
+                    {details}
                 </div>
             </figcaption>
         </figure>

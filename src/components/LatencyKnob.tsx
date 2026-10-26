@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, KeyboardEvent } from "react";
+import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 
 import { Crosses, VRule } from "./Grid";
 import styles from "./LatencyKnob.module.css";
@@ -10,13 +10,21 @@ type Props = {
     value: number;
     max: number;
     deadline: number;
+    symbol: ReactNode; // d, typeset by the server
     onChange: (v: number) => void;
 };
 
 // A native range input (keyboard, touch and screen readers for free) laid
 // over a drawn scale: ticks every 10 ms, the deadline in maroon and the
 // unstable side hatched like the page's late column.
-export function LatencyKnob({ id, value, max, deadline, onChange }: Props) {
+export function LatencyKnob({
+    id,
+    value,
+    max,
+    deadline,
+    symbol,
+    onChange,
+}: Props) {
     const pct = (v: number) => `${(v / max) * 100}%`;
     const late = value > deadline;
     const ticks: number[] = [];
@@ -56,7 +64,7 @@ export function LatencyKnob({ id, value, max, deadline, onChange }: Props) {
             <VRule />
             <div className={styles.head}>
                 <label htmlFor={id} className={styles.label}>
-                    Loop latency <i>d</i>
+                    Loop latency {symbol}
                 </label>
                 <output
                     htmlFor={id}

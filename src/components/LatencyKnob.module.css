@@ -26,12 +26,6 @@
     text-transform: uppercase;
     color: var(--ink);
 }
-.label i {
-    margin-left: 2px;
-    font: italic 400 14px/1 var(--sans);
-    letter-spacing: 0;
-    text-transform: none;
-}
 
 .value {
     font-family: var(--mono);
@@ -117,6 +111,13 @@
     position: absolute;
     top: 6px;
     right: 0;
+}
+/* On the narrowest phones it would run into the deadline's label; the
+   hatch and the verdict under the scale still say it */
+@media (max-width: 379px) {
+    .unstableLabel {
+        display: none;
+    }
 }
 
 .deadline {

@@ -9,12 +9,10 @@ import { Nav } from "@/components/Nav";
 import styles from "./layout.module.css";
 
 // Inter Tight for the wordmark and text: a neo-grotesk with tight default
-// spacing that holds up at 100px+. Its italic is for the variables (d, θ)
-// in the cart-pole's captions. IBM Plex Mono for labels, figure captions
-// and buttons, like a datasheet.
+// spacing that holds up at 100px+. IBM Plex Mono for labels, figure
+// captions and buttons, like a datasheet. Math is typeset by KaTeX (Tex).
 const sans = Inter_Tight({
     subsets: ["latin"],
-    style: ["normal", "italic"],
     variable: "--font-inter-tight",
     display: "swap",
 });

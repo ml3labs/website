@@ -64,8 +64,9 @@ describe("the deadline", () => {
     });
 
     // Two independent routes to the same number: brute simulation of the
-    // nonlinear sampled loop, and the phase margin of the linearised one
-    test("agrees with the linear delay margin to within 2 ms", () => {
-        expect(Math.abs(linearDelayMargin() - deadline)).toBeLessThanOrEqual(2);
+    // nonlinear sampled loop, and the phase margin of the linearised one.
+    // Model details says they agree to about a step (1 ms).
+    test("agrees with the linear delay margin to about a step", () => {
+        expect(Math.abs(linearDelayMargin() - deadline)).toBeLessThan(1.5);
     });
 });
