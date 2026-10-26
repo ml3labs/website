@@ -9,13 +9,11 @@
     --ink: #11151b;
     --accent: #8b2145;
     --text: #3a3a3a;
-    --text-strong: var(--ink);
-    --text-muted: rgba(17, 21, 27, 0.55);
 
     /* The site's drawing language: ink at fixed alphas over --bg, so a
        hairline is the same weight in the nav, a figure and the footer.
-       --text-muted is too light for the 10-12px mono labels (about 4:1);
-       --ink-muted clears 4.5:1. --ink-faint never carries text. */
+       --ink-muted is 0.66 because the 10-12px mono labels need 4.5:1, which
+       0.55 misses (about 4:1). --ink-faint never carries text. */
     --ink-muted: rgba(17, 21, 27, 0.66);
     --ink-soft: rgba(17, 21, 27, 0.5);
     --ink-faint: rgba(17, 21, 27, 0.3);

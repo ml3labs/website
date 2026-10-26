@@ -1,4 +1,4 @@
-// Path data copied verbatim from /media/brand/logo-traced.svg. bar-1..3 run
+// Path data copied verbatim from /media/brand/ml3-mark.svg. bar-1..3 run
 // left to right; "three" is the maroon ³. Never scale one path on its own:
 // every layer shares this viewBox, so the geometry stays exactly the trace.
 export const MARK_VIEWBOX = "174.1 215.3 684.5 493.2";

@@ -22,11 +22,11 @@ npm run dev
 
 ```
 src/
-  app/          # App Router: root layout, global styles, shared metadata
-    (site)/     # The site's chrome (nav, deadline, footer) and its pages
+  app/          # App Router: the pages, the root layout with the site's
+                # chrome (nav, deadline, footer), styles and metadata
   components/   # UI components
   lib/          # Framework-free logic
 public/         # Served as-is, including CNAME
-  media/brand/  # Logo
+  media/brand/  # Logo: light and dark PNGs, and the mark as SVG
 assets/fonts/   # Fonts for the link-preview image (OFL)
 ```

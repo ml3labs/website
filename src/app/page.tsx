@@ -2,6 +2,10 @@ import { ControlSection } from "@/components/ControlSection";
 import { Hero } from "@/components/Hero";
 import { TimingStrip } from "@/components/TimingStrip";
 
+import { pageMetadata } from "./shared-metadata";
+
+export const metadata = pageMetadata("/");
+
 // The thesis, then the proof: a handshake that meets its deadline, a
 // control loop you can make late, and the same handshake missing it
 export default function Home() {

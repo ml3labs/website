@@ -15,7 +15,7 @@ import {
 const r1 = (v: number) => (Math.round(v * 10) / 10).toString();
 
 // "+2.4°", "−0.12 m", "0.0 N"
-function signed(v: number, digits: number, unit: string) {
+export function signed(v: number, digits: number, unit: string) {
     const a = Math.abs(v).toFixed(digits);
     if (Number(a) === 0) return `${a}${unit}`;
     return `${v < 0 ? "−" : "+"}${a}${unit}`;
@@ -94,7 +94,7 @@ export function mechGeom(w: number, h: number): MechGeom {
 // How far to shift the whole mechanism so the bob stays SIDE px inside the
 // drawing. Zero unless the pole leans out past an end stop. It follows the
 // state continuously, so the view slides rather than jumps.
-export function panOf(sim: CartPole, g: MechGeom): number {
+function panOf(sim: CartPole, g: MechGeom): number {
     const bob = g.cx + sim.x * g.s + g.L * Math.sin(sim.th);
     const right = bob + g.br + SIDE - g.w;
     if (right > 0) return -right;
@@ -309,11 +309,10 @@ export function applyMech(n: MechNodes, f: MechFrame, withText: boolean) {
 /* -------------------------------------------------------------------- scope */
 
 export const SCOPE_H = 112;
-export const SCOPE_RANGE_DEG = 25;
+const SCOPE_RANGE_DEG = 25;
 
 export type ScopeGeom = {
     w: number;
-    h: number;
     left: number;
     right: number;
     top: number;
@@ -323,14 +322,13 @@ export type ScopeGeom = {
     msPx: number;
 };
 
-export function scopeGeom(w: number, h = SCOPE_H): ScopeGeom {
+export function scopeGeom(w: number): ScopeGeom {
     const left = 40.5;
     const right = Math.round(w - 4) + 0.5;
     const top = 12.5;
-    const bottom = Math.round(h - 20) + 0.5;
+    const bottom = SCOPE_H - 20 + 0.5;
     return {
         w,
-        h,
         left,
         right,
         top,

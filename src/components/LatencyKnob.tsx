@@ -59,7 +59,7 @@ export function LatencyKnob({
     } as CSSProperties;
 
     return (
-        <div className={styles.knob} style={vars}>
+        <div className={styles.knob} style={vars} data-late={late}>
             <Crosses />
             <VRule />
             <div className={styles.head}>
@@ -69,7 +69,6 @@ export function LatencyKnob({
                 <output
                     htmlFor={id}
                     className={styles.value}
-                    data-late={late}
                     aria-hidden="true"
                 >
                     {value}
@@ -82,7 +81,7 @@ export function LatencyKnob({
                         <span className={styles.unstable} />
                         <span className={styles.unstableLabel}>Unstable</span>
                         <span className={styles.rail} />
-                        <span className={styles.fill} data-late={late} />
+                        <span className={styles.fill} />
                         {ticks.map((v) => (
                             <span
                                 key={v}
@@ -106,7 +105,6 @@ export function LatencyKnob({
                         max={max}
                         step={1}
                         value={value}
-                        data-late={late}
                         aria-valuetext={`${value} milliseconds, ${
                             late ? "past" : "within"
                         } the ${deadline} millisecond deadline`}
@@ -123,9 +121,7 @@ export function LatencyKnob({
                         </span>
                     ))}
                 </div>
-                <p className={styles.verdict} data-late={late}>
-                    {verdict}
-                </p>
+                <p className={styles.verdict}>{verdict}</p>
             </div>
         </div>
     );

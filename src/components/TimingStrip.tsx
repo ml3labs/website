@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { onFrame } from "@/lib/frameLoop";
+import { BOOT_END_MS, BOOT_TICK_MS, prefersReducedMotion } from "@/lib/motion";
 
 import { Crosses, VRule } from "./Grid";
 import styles from "./TimingStrip.module.css";
@@ -38,23 +39,24 @@ type Geo = {
 const WIDE = "(min-width: 900px)";
 const NAMES = ["CLK", "REQ", "ACK", "DEADLINE"];
 
-function measure(area: HTMLElement, probe: HTMLElement): Geo {
+function measure(area: HTMLElement, probes: HTMLElement): Geo {
     const wide = window.matchMedia(WIDE).matches;
     const box = area.getBoundingClientRect();
-    const W = box.width;
-    // The probe sits at --D, wherever CSS put the deadline
-    const D = probe.getBoundingClientRect().left - box.left;
-    const pad = wide ? 24 : 16;
-    const x0 = wide ? W / 4 + pad : 96;
+    // The probes sit at x positions CSS owns: the deadline, where the
+    // waveforms start, and the side padding the row names sit in
+    const [D, x0, pad] = Array.from(
+        probes.children,
+        (p) => p.getBoundingClientRect().left - box.left,
+    );
     const d = Math.max(7, Math.round((D - x0) / (wide ? 64 : 34)));
     return {
-        W,
+        W: box.width,
+        H: box.height,
         D,
         x0,
         d,
         p: (D - x0) / d,
         pad,
-        H: wide ? 186 : 162, // matches .area
         top: wide ? 24 : 18,
         rowH: wide ? 36 : 32,
         slant: wide ? 3 : 2,
@@ -202,7 +204,7 @@ export function TimingStrip({
     grow?: boolean;
 }) {
     const area = useRef<HTMLDivElement>(null);
-    const probe = useRef<HTMLDivElement>(null);
+    const probes = useRef<HTMLDivElement>(null);
     const [geo, setGeo] = useState<Geo | null>(null);
     // Half-cycles revealed so far: -1 before the run, Infinity when done
     const [k, setK] = useState(-1);
@@ -210,11 +212,9 @@ export function TimingStrip({
 
     useEffect(() => {
         const el = area.current;
-        const probeEl = probe.current;
+        const probeEl = probes.current;
         if (!el || !probeEl) return;
-        const reduce = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
+        const reduce = prefersReducedMotion();
 
         // Fires once on observe, then on every width change
         const ro = new ResizeObserver(() => setGeo(measure(el, probeEl)));
@@ -252,10 +252,11 @@ export function TimingStrip({
             (entries) => {
                 if (!entries.some((e) => e.isIntersecting)) return;
                 io.disconnect();
-                // On first load, let the hero's boot finish first
+                // On first load, let the hero's boot finish first, plus
+                // a tick
                 wait = window.setTimeout(
                     run,
-                    Math.max(0, 900 - performance.now()),
+                    Math.max(0, BOOT_END_MS + BOOT_TICK_MS - performance.now()),
                 );
             },
             { rootMargin: "0px 0px -12% 0px" },
@@ -288,7 +289,11 @@ export function TimingStrip({
         >
             <Crosses />
             <VRule />
-            <div ref={probe} aria-hidden="true" className={styles.probe} />
+            <div ref={probes} aria-hidden="true" className={styles.probes}>
+                <i />
+                <i />
+                <i />
+            </div>
             <div ref={area} className={styles.area} aria-hidden="true">
                 {geo && art && (
                     <>

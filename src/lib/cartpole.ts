@@ -42,7 +42,7 @@ const FALL_ANGLE = 60 * DEG;
 const BRAKE = 8; // N per m/s, after a fall
 const BUMPER_RESTITUTION = 0.2;
 const PIVOT_HEIGHT = 2 * MODEL.wheelRadius + MODEL.cartHeight;
-export const REST_ANGLE = Math.acos(
+const REST_ANGLE = Math.acos(
     (MODEL.bobRadius - PIVOT_HEIGHT) / MODEL.poleLength,
 );
 
@@ -95,8 +95,8 @@ export class CartPole {
     private nextNudge: number;
     private nudgeSign = 1;
     nudgeMarks = new Float64Array(NUDGE_MARKS).fill(-1e9);
-    nudgeDirs = new Int8Array(NUDGE_MARKS);
     private nudgeHead = 0;
+    private lastNudgeDir = 0;
 
     // History of past states for the delay line
     private hist = new Float64Array(CAP * 4);
@@ -141,14 +141,14 @@ export class CartPole {
         if (this.fallen) return;
         this.om += dir * NUDGE;
         this.nudgeMarks[this.nudgeHead] = this.t;
-        this.nudgeDirs[this.nudgeHead] = dir;
         this.nudgeHead = (this.nudgeHead + 1) % NUDGE_MARKS;
+        this.lastNudgeDir = dir;
     }
 
     // Time and direction of the most recent nudge
     lastNudge(): { at: number; dir: number } {
         const i = (this.nudgeHead + NUDGE_MARKS - 1) % NUDGE_MARKS;
-        return { at: this.nudgeMarks[i], dir: this.nudgeDirs[i] };
+        return { at: this.nudgeMarks[i], dir: this.lastNudgeDir };
     }
 
     step() {
@@ -272,7 +272,7 @@ export class CartPole {
 // condition matters just past the deadline, where a growing tilt saturates
 // the actuator and settles into a steady wobble (a limit cycle) whose
 // window peaks would otherwise look level.
-export const TEST_TILT = 1e-6; // rad
+const TEST_TILT = 1e-6; // rad
 export function isStableAt(delayMs: number): boolean {
     const sim = new CartPole({ autoNudge: false });
     sim.delay = delayMs;

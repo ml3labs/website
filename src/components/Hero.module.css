@@ -38,38 +38,16 @@
 }
 
 .meta {
-    composes: row from "./Grid.module.css";
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    height: 44px;
-    padding: 0 calc(var(--late) + var(--pad)) 0 var(--pad);
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
+    composes: figHead from "./Grid.module.css";
 }
 .metaFig {
-    color: var(--ink);
-    white-space: nowrap;
-}
-.metaFig span {
-    margin-left: 10px;
-    color: var(--ink-muted);
+    composes: figNo from "./Grid.module.css";
 }
 .metaCap {
     display: none;
 }
 
 @media (min-width: 900px) {
-    .meta {
-        display: grid;
-        grid-template-columns: calc(var(--c3) - var(--pad)) 1fr auto;
-        gap: 0;
-    }
     .metaCap {
         display: block;
         overflow: hidden;
@@ -91,10 +69,7 @@
 }
 
 .stage {
-    composes: row from "./Grid.module.css";
-    display: grid;
-    grid-template-columns: 1fr;
-    padding-right: var(--late);
+    composes: row split from "./Grid.module.css";
 }
 
 .markCol {
@@ -109,9 +84,6 @@
 }
 
 @media (min-width: 900px) {
-    .stage {
-        grid-template-columns: var(--c3) 1fr;
-    }
     .markCol {
         padding: 56px 0 30px;
     }
@@ -441,55 +413,55 @@
     writing-mode: vertical-rl;
 }
 
-/* Boot sequence. t0 = 300 ms after load, one tick per 120 ms:
-   t1 bar-1, t2 bar-2, t3 bar-3, t4 the ³ lands as the sweep arrives.
-   Every final keyframe equals the base style, so with no animation (or
-   reduced motion) the page shows the finished frame. */
-
-.boot .sweep {
-    animation: sweep 480ms linear 300ms both;
-}
-.boot .clk {
-    animation: wipe 480ms linear 300ms both;
-}
-.boot .head {
-    animation: sweep 480ms linear 300ms both;
-}
-/* The label only snaps in once the line has landed */
-.boot .sweepTag {
-    animation: appear 780ms step-end both;
-}
-.boot .l1 {
-    animation: rise1 80ms steps(4, jump-start) 420ms both;
-}
-.boot .l2 {
-    animation: rise2 80ms steps(4, jump-start) 540ms both;
-}
-.boot .l3 {
-    animation: rise3 80ms steps(4, jump-start) 660ms both;
-}
-.boot .l4 {
-    animation:
-        appear 708ms step-end both,
-        land 72ms steps(3, jump-end) 708ms both;
-}
-.boot .lgRow[data-k] {
-    animation-name: lit;
-    animation-duration: var(--at);
-    animation-timing-function: step-end;
-    animation-fill-mode: both;
-}
-.boot .lgRow .hi {
-    animation-name: appear;
-    animation-duration: var(--at);
-    animation-timing-function: step-end;
-    animation-fill-mode: both;
-}
-.boot .lgRow .lo {
-    animation-name: vanish;
-    animation-duration: var(--at);
-    animation-timing-function: step-end;
-    animation-fill-mode: both;
+/* Boot sequence, on the clock Hero.tsx sets from src/lib/motion.ts: --t0
+   after load, then one --tick per step. t1 bar-1, t2 bar-2, t3 bar-3, t4 the
+   ³ lands as the sweep arrives. It only runs when motion is welcome. Every
+   final keyframe equals the base style, so otherwise the page shows the
+   finished frame. */
+@media (prefers-reduced-motion: no-preference) {
+    .boot .sweep,
+    .boot .head {
+        animation: sweep calc(4 * var(--tick)) linear var(--t0) both;
+    }
+    .boot .clk {
+        animation: wipe calc(4 * var(--tick)) linear var(--t0) both;
+    }
+    /* The label only snaps in once the line has landed */
+    .boot .sweepTag {
+        animation: appear calc(var(--t0) + 4 * var(--tick)) step-end both;
+    }
+    /* Each bar rises in 80 ms, starting on its tick */
+    .boot .l1 {
+        --top: 63.4%;
+        animation: rise 80ms steps(4, jump-start) calc(var(--t0) + var(--tick))
+            both;
+    }
+    .boot .l2 {
+        --top: 40%;
+        animation: rise 80ms steps(4, jump-start)
+            calc(var(--t0) + 2 * var(--tick)) both;
+    }
+    .boot .l3 {
+        --top: 17.1%;
+        animation: rise 80ms steps(4, jump-start)
+            calc(var(--t0) + 3 * var(--tick)) both;
+    }
+    /* The ³ appears 72 ms early and drops in, landing on t4 */
+    .boot .l4 {
+        --land-at: calc(var(--t0) + 4 * var(--tick) - 72ms);
+        animation:
+            appear var(--land-at) step-end both,
+            land 72ms steps(3, jump-end) var(--land-at) both;
+    }
+    .boot .lgRow[data-k] {
+        animation: lit var(--at) step-end both;
+    }
+    .boot .lgRow .hi {
+        animation: appear var(--at) step-end both;
+    }
+    .boot .lgRow .lo {
+        animation: vanish var(--at) step-end both;
+    }
 }
 
 @keyframes sweep {
@@ -508,31 +480,15 @@
         clip-path: inset(-4px -4px -4px -4px);
     }
 }
-/* Each bar is revealed from the baseline up to its own top edge (bar-1
-   63.7%, bar-2 40.3%, bar-3 17.4% of the viewBox height), so the four steps
-   are four equal quarters of that bar */
-@keyframes rise1 {
+/* Each bar is revealed from the baseline up to its own top edge, --top
+   (bar-1 63.7%, bar-2 40.3%, bar-3 17.4% of the viewBox height), so the
+   four steps are four equal quarters of that bar */
+@keyframes rise {
     from {
         clip-path: inset(calc(100% + 3px) -2px -2px -2px);
     }
     to {
-        clip-path: inset(63.4% -2px -2px -2px);
-    }
-}
-@keyframes rise2 {
-    from {
-        clip-path: inset(calc(100% + 3px) -2px -2px -2px);
-    }
-    to {
-        clip-path: inset(40% -2px -2px -2px);
-    }
-}
-@keyframes rise3 {
-    from {
-        clip-path: inset(calc(100% + 3px) -2px -2px -2px);
-    }
-    to {
-        clip-path: inset(17.1% -2px -2px -2px);
+        clip-path: inset(var(--top) -2px -2px -2px);
     }
 }
 @keyframes appear {
@@ -592,11 +548,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .boot *,
-    .boot *::before,
-    .boot *::after {
-        animation: none !important;
-    }
     .replay {
         display: none;
     }

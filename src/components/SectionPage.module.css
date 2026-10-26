@@ -49,9 +49,9 @@
     line-height: 1.5;
 }
 
-/* The address is the page's headline, so it keeps the title's size and
-   reads as a link only through the underline */
-.email {
+/* A linked headline (Contact's address) keeps the title's size and reads
+   as a link only through the underline */
+.headlineLink {
     display: inline-block;
     color: var(--ink);
     text-decoration: underline;
@@ -59,11 +59,11 @@
     text-underline-offset: 0.18em;
     overflow-wrap: anywhere;
 }
-.email:hover,
-.email:focus-visible {
+.headlineLink:hover,
+.headlineLink:focus-visible {
     color: var(--accent);
 }
-.email:focus-visible {
+.headlineLink:focus-visible {
     outline: 1px solid var(--accent);
     outline-offset: 4px;
 }
