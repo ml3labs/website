@@ -1,0 +1,60 @@
+/* Each row: the name, a bar to scale against the full load, the time.
+   The bars grow in four clocked steps, like the hero's boot. */
+
+.load {
+    max-width: 420px;
+}
+
+.rows {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+}
+.row dt {
+    color: var(--ink-muted);
+}
+
+.value {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 7ch;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* The track is a hairline; the bar is the ink scaled along it */
+.track {
+    position: relative;
+    height: 7px;
+    background: linear-gradient(var(--rule), var(--rule)) left center / 100% 1px
+        no-repeat;
+}
+.track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform: scaleX(var(--w));
+    transform-origin: left;
+    transition: transform 480ms steps(4);
+}
+
+.note {
+    margin: 12px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .track::after {
+        transition: none;
+    }
+}

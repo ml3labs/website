@@ -25,12 +25,3 @@ export function Mark({ className }: { className: string }) {
         </svg>
     );
 }
-
-// "ML³" in text, with the ³ in the mark's maroon
-export function Name() {
-    return (
-        <span>
-            ML<span className={styles.three}>³</span>
-        </span>
-    );
-}
