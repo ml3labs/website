@@ -1,0 +1,35 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "permissions": {
+        "allow": [
+            "Bash(npm run *)",
+            "Bash(npm test)",
+            "Bash(npx prettier *)",
+            "Bash(npx eslint *)",
+            "Bash(npx vitest *)"
+        ],
+        "deny": ["Read(./.env)", "Read(./.env.*)"]
+    },
+    "env": {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint.sh",
+                        "timeout": 30,
+                        "statusMessage": "Formatting and linting"
+                    }
+                ]
+            }
+        ]
+    },
+    "enabledPlugins": {
+        "superpowers@claude-plugins-official": true,
+        "code-simplifier@claude-plugins-official": true
+    }
+}

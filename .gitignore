@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 .vscode/
+
+# claude code: personal settings and runtime state
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+CLAUDE.local.md
