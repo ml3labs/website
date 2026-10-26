@@ -1,0 +1,130 @@
+/* The page is one timing diagram. Every row has a 1px rule on top, + marks
+   where rules cross, a column rule at --c3 (wide screens) and the deadline
+   at --D, with the late column after it. --pad, --late, --c3 and --D come
+   from the site frame (src/app/(site)/layout.module.css). */
+
+.row {
+    position: relative;
+    border-top: 1px solid var(--rule);
+}
+
+/* A row with a label column and a body, the body ending at the deadline */
+.split {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding-right: var(--late);
+}
+
+.grow {
+    flex: 1;
+}
+
+.x {
+    position: absolute;
+    top: -6px;
+    z-index: 3;
+    width: 11px;
+    height: 11px;
+    pointer-events: none;
+}
+.x::before,
+.x::after {
+    content: "";
+    position: absolute;
+    background: var(--ink-soft);
+}
+.x::before {
+    top: 0;
+    left: 5px;
+    width: 1px;
+    height: 11px;
+}
+.x::after {
+    top: 5px;
+    left: 0;
+    width: 11px;
+    height: 1px;
+}
+.xL {
+    left: -6px;
+}
+.xR {
+    right: -6px;
+}
+.xC {
+    display: none;
+    left: calc(var(--c3) - 5px);
+}
+.xD {
+    left: calc(var(--D) - 6px);
+}
+.xD::before,
+.xD::after {
+    background: var(--accent);
+}
+
+.vr {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--c3);
+    width: 1px;
+    background: var(--rule);
+    pointer-events: none;
+}
+
+/* The late column: the deadline as its left edge, [D - 1px, D], and
+   hatched like an undefined ('x') signal after it */
+.late {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: var(--late);
+    pointer-events: none;
+}
+.late::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 1px;
+    background: var(--accent);
+}
+.late::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--hatch);
+    -webkit-mask-image: var(--hatch-mask);
+    mask-image: var(--hatch-mask);
+}
+
+/* Small labels in the label column */
+.label {
+    margin: 0;
+    padding: 0 var(--pad);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+}
+
+.body {
+    padding: 0 var(--pad);
+}
+
+@media (min-width: 900px) {
+    .split {
+        grid-template-columns: var(--c3) 1fr;
+    }
+    .xC,
+    .vr {
+        display: block;
+    }
+}

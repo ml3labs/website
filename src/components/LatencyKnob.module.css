@@ -1,0 +1,272 @@
+/* Phones: the label and value on one line over the scale. Wide: the label
+   and a large value in the label column, the scale in the body. */
+
+.knob {
+    composes: row split from "./Grid.module.css";
+    --thumb-w: 18px;
+    row-gap: 6px;
+    padding-top: 16px;
+    padding-bottom: 18px;
+}
+
+.head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 var(--pad);
+}
+
+.label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+.label i {
+    margin-left: 2px;
+    font: italic 400 14px/1 var(--sans);
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.value {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+.value small {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--ink-muted);
+}
+.value[data-late="true"] {
+    color: var(--accent);
+}
+
+.body {
+    composes: body from "./Grid.module.css";
+}
+
+.scale {
+    position: relative;
+    height: 60px;
+}
+
+/* Inset by half a thumb, so 0 and max sit under the thumb's centre */
+.scaleInner {
+    position: absolute;
+    inset: 0 calc(var(--thumb-w) / 2);
+    pointer-events: none;
+}
+
+.rail {
+    position: absolute;
+    top: 35px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--ink-faint);
+}
+
+.fill {
+    position: absolute;
+    top: 34px;
+    left: 0;
+    width: var(--val);
+    height: 3px;
+    background: var(--ink);
+}
+.fill[data-late="true"] {
+    background: var(--accent);
+}
+
+.unstable {
+    position: absolute;
+    top: 21px;
+    left: var(--dl);
+    right: 0;
+    height: 29px;
+    background: var(--accent-hatch);
+    -webkit-mask-image: var(--hatch-mask);
+    mask-image: var(--hatch-mask);
+}
+
+.unstableLabel,
+.deadline span {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--accent);
+}
+
+.unstableLabel {
+    position: absolute;
+    top: 6px;
+    right: 0;
+}
+
+.deadline {
+    position: absolute;
+    top: 3px;
+    bottom: 6px;
+    left: var(--dl);
+    width: 1px;
+    margin-left: -0.5px;
+    background: var(--accent);
+}
+.deadline span {
+    position: absolute;
+    top: 3px;
+    left: 6px;
+}
+
+.tick,
+.tickMajor {
+    position: absolute;
+    top: 50px;
+    width: 1px;
+    height: 5px;
+    margin-left: -0.5px;
+    background: var(--ink-soft);
+}
+.tickMajor {
+    top: 46px;
+    height: 9px;
+    background: var(--ink-muted);
+}
+
+/* The native input does the work; only its thumb is drawn */
+.range {
+    position: absolute;
+    top: 14px;
+    left: 0;
+    width: 100%;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: ew-resize;
+}
+.range:focus {
+    outline: none;
+}
+
+.range::-webkit-slider-runnable-track {
+    height: 42px;
+    background: transparent;
+    border: 0;
+}
+.range::-moz-range-track {
+    height: 42px;
+    background: transparent;
+    border: 0;
+}
+
+.range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: var(--thumb-w);
+    height: 30px;
+    margin-top: 6px;
+    background:
+        linear-gradient(var(--ink), var(--ink)) center / 1.5px 100% no-repeat,
+        var(--bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 0;
+}
+.range::-moz-range-thumb {
+    box-sizing: border-box;
+    width: var(--thumb-w);
+    height: 30px;
+    background:
+        linear-gradient(var(--ink), var(--ink)) center / 1.5px 100% no-repeat,
+        var(--bg);
+    border: 1.5px solid var(--ink);
+    border-radius: 0;
+}
+
+.range[data-late="true"]::-webkit-slider-thumb {
+    background:
+        linear-gradient(var(--accent), var(--accent)) center / 1.5px 100%
+            no-repeat,
+        var(--bg);
+    border-color: var(--accent);
+}
+.range[data-late="true"]::-moz-range-thumb {
+    background:
+        linear-gradient(var(--accent), var(--accent)) center / 1.5px 100%
+            no-repeat,
+        var(--bg);
+    border-color: var(--accent);
+}
+
+.range:focus-visible::-webkit-slider-thumb {
+    box-shadow:
+        0 0 0 2px var(--bg),
+        0 0 0 3px var(--ink);
+}
+.range:focus-visible::-moz-range-thumb {
+    box-shadow:
+        0 0 0 2px var(--bg),
+        0 0 0 3px var(--ink);
+}
+
+.scaleLabels {
+    position: relative;
+    height: 13px;
+    margin: 0 calc(var(--thumb-w) / 2);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-muted);
+}
+.scaleLabels span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.verdict {
+    margin: 10px 0 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ink);
+}
+.verdict[data-late="true"] {
+    color: var(--accent);
+}
+
+@media (min-width: 900px) {
+    .knob {
+        padding-top: 24px;
+        padding-bottom: 24px;
+    }
+    .head {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 14px;
+    }
+    .value {
+        font-size: 36px;
+    }
+}

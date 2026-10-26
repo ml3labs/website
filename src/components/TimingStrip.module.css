@@ -1,0 +1,113 @@
+.strip {
+    composes: row from "./Grid.module.css";
+    margin: 0;
+}
+.grow {
+    composes: grow from "./Grid.module.css";
+}
+
+/* Zero-size marker at the deadline, for measuring it from script */
+.probe {
+    position: absolute;
+    top: 0;
+    left: var(--D);
+    width: 0;
+    height: 0;
+}
+
+.area {
+    position: relative;
+    height: 162px;
+    overflow: hidden;
+}
+@media (min-width: 900px) {
+    .area {
+        height: 186px;
+    }
+}
+
+.svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    overflow: hidden;
+}
+
+.cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: var(--ink);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.caption {
+    margin: 0;
+    padding: 0 calc(var(--late) + var(--pad)) 18px 96px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+}
+.caption b {
+    margin-right: 10px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+@media (min-width: 900px) {
+    .caption {
+        padding-left: calc(var(--c3) + var(--pad));
+        padding-bottom: 22px;
+    }
+}
+
+.name {
+    fill: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+.wave {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: miter;
+}
+.idle {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1.5;
+}
+.due {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+}
+.grid {
+    fill: none;
+    stroke: var(--ink);
+    stroke-opacity: 0.1;
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+}
+.hatchLine {
+    fill: var(--ink);
+    fill-opacity: 0.5;
+}
+.dim {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-width: 1;
+}
+.dimText {
+    fill: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 10px;
+}

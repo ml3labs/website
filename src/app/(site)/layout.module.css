@@ -1,0 +1,81 @@
+/* The site frame. A maroon deadline runs down <main> at the same x (--D)
+   on every page, with a hatched "late" column to its right; everything
+   that matters sits left of it. */
+
+.root {
+    --sans: var(--font-inter-tight), "Helvetica Neue", Arial, sans-serif;
+    --mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
+    --gutter: 12px;
+
+    min-height: 100vh;
+    padding: 0 var(--gutter);
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    font-kerning: normal;
+    text-size-adjust: 100%;
+}
+.root ::selection {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+/* The frame is the size container for the whole page. Every length that
+   uses 100cqw resolves against it, so --D and --c3 are only ever used by
+   descendants, and nothing inside may become a size container itself or
+   they would resolve against that instead. */
+.frame {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 1360px;
+    margin: 0 auto;
+    border-left: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+
+    --pad: 16px;
+    --late: 28px; /* width of the hatched column after the deadline */
+    --D: calc(100cqw - var(--late)); /* x of the deadline */
+    --c3: 0px; /* x of the column rule (3 of 12 columns) */
+}
+
+@media (min-width: 900px) {
+    .root {
+        --gutter: 24px;
+    }
+    .frame {
+        --pad: 24px;
+        --late: calc(100cqw / 12);
+        --c3: calc(100cqw / 4);
+    }
+}
+
+@media (min-width: 1200px) {
+    .root {
+        --gutter: 32px;
+    }
+}
+
+.skip {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    z-index: 10;
+    padding: 8px 12px;
+    background: var(--ink);
+    color: var(--bg);
+    font: 500 12px/1 var(--mono);
+}
+.skip:focus {
+    left: calc(var(--gutter) + 8px);
+}
+
+.main {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}

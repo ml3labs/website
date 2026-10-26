@@ -1,0 +1,108 @@
+.head {
+    composes: row split from "./Grid.module.css";
+    row-gap: 18px;
+    padding-top: 40px;
+    padding-bottom: 44px;
+}
+.label {
+    composes: label from "./Grid.module.css";
+}
+.body {
+    composes: body from "./Grid.module.css";
+}
+
+.title {
+    margin: 0;
+    padding: 0 var(--pad);
+    color: var(--ink);
+    font-size: calc((var(--D) - 2 * var(--pad)) / 5.3);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    /* Optical: pull the first glyph's side bearing back to the grid line */
+    text-indent: -0.035em;
+}
+
+.status {
+    composes: row split grow from "./Grid.module.css";
+    align-content: start;
+    row-gap: 16px;
+    padding-top: 36px;
+    padding-bottom: 64px;
+}
+
+.statusTitle {
+    margin: 0;
+    color: var(--ink);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+}
+
+.statusLine {
+    max-width: 34em;
+    margin: 12px 0 0;
+    color: var(--ink-muted);
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+/* The address is the page's headline, so it keeps the title's size and
+   reads as a link only through the underline */
+.email {
+    display: inline-block;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+}
+.email:hover,
+.email:focus-visible {
+    color: var(--accent);
+}
+.email:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 4px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+@media (min-width: 600px) {
+    .title {
+        font-size: calc(100cqw * 0.11);
+    }
+}
+
+@media (min-width: 900px) {
+    .head {
+        align-items: end;
+        padding-top: 88px;
+        padding-bottom: 64px;
+    }
+    /* Sit the label on the title's baseline: the title's line box ends
+       0.1115 em below its baseline (Inter Tight, line-height 0.95) */
+    .head .label {
+        padding-bottom: max(0px, calc(100cqw * 0.094 * 0.1115 - 4px));
+    }
+    .title {
+        font-size: calc(100cqw * 0.094);
+    }
+    .status {
+        padding-top: 56px;
+        padding-bottom: 104px;
+    }
+    .statusTitle {
+        font-size: 38px;
+    }
+    .statusLine {
+        font-size: 19px;
+    }
+}
