@@ -113,6 +113,18 @@ export class CartPole {
         this.reset(0);
     }
 
+    // An independent copy: the same state, with buffers of its own
+    clone(): CartPole {
+        const c: CartPole = Object.assign(
+            Object.create(CartPole.prototype),
+            this,
+        );
+        c.nudgeMarks = this.nudgeMarks.slice();
+        c.hist = this.hist.slice();
+        c.trace = this.trace.slice();
+        return c;
+    }
+
     // Upright at the centre with a small tilt, as if it had been held there
     // still, so the delay line is full of that state.
     reset(th0 = 0) {

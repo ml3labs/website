@@ -78,8 +78,8 @@ export function ControlToy({ deadlineMs, math, details }: Props) {
     const shown = useMemo(() => runScenario(scenarioDelay), [scenarioDelay]);
     const mg = useMemo(() => mechGeom(size.w, size.h), [size.w, size.h]);
     const sg = useMemo(() => scopeGeom(size.sw), [size.sw]);
-    const f0 = mechFrame(shown, mg);
-    const sc0 = scopeFrame(shown, sg);
+    const f0 = useMemo(() => mechFrame(shown, mg), [shown, mg]);
+    const sc0 = useMemo(() => scopeFrame(shown, sg), [shown, sg]);
 
     const fall = reduced
         ? shown.fallen
@@ -121,7 +121,8 @@ export function ControlToy({ deadlineMs, math, details }: Props) {
         const mech = mechRef.current;
         const scope = scopeRef.current;
         if (!stage || !box || !mech || !scope) return;
-        if (!simRef.current) simRef.current = runScenario(INITIAL_DELAY_MS);
+        // Live, the still frame is the 8 s warm-up: carry on from a copy
+        if (!simRef.current) simRef.current = shown.clone();
         const sim = simRef.current;
         const mn = mechNodes(mech);
         const sn = scopeNodes(scope);
@@ -200,7 +201,7 @@ export function ControlToy({ deadlineMs, math, details }: Props) {
             document.removeEventListener("visibilitychange", onVisibility);
             wakeRef.current = null;
         };
-    }, [reduced]);
+    }, [reduced, shown]);
 
     // Also when the live loop starts, so a simulation created after the
     // knob has moved runs at the knob's delay
@@ -219,7 +220,7 @@ export function ControlToy({ deadlineMs, math, details }: Props) {
         if (!sim || !mech || !scope) return;
         applyMech(mechNodes(mech), mechFrame(sim, mg), true);
         applyScope(scopeNodes(scope), scopeFrame(sim, sg));
-    });
+    }, [reduced, mg, sg]);
 
     function nudge(dir: 1 | -1) {
         const sim = simRef.current;

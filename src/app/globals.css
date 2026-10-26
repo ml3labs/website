@@ -1,4 +1,8 @@
-@import "tailwindcss";
+/* Tailwind for its preflight reset. Class detection is off, so words in
+   comments and copy can't generate utilities; antialiased, on <body>, is
+   the one utility in use. */
+@import "tailwindcss" source(none);
+@source inline("antialiased");
 
 /* Light only. The colors come from the logo. Its PNG has the background
    baked in, so whatever sits behind the logo must stay #f9f7f3. */

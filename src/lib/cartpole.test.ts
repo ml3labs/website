@@ -6,6 +6,7 @@ import {
     findDeadline,
     isStableAt,
     linearDelayMargin,
+    runScenario,
 } from "./cartpole";
 
 // Run the live toy's loop (test nudges every 4 s) for a while and keep the
@@ -41,6 +42,38 @@ describe("cart-pole under delayed state feedback", () => {
 
         expect(sim.fallen).toBe(true);
         expect(sim.fellAt).toBeLessThan(8000);
+    });
+
+    test("a clone steps exactly like the original", () => {
+        const a = runScenario(30);
+        const b = a.clone();
+        for (let k = 0; k < 3000; k++) {
+            a.step();
+            b.step();
+        }
+        expect(b.th).toBe(a.th);
+        expect(b.x).toBe(a.x);
+        expect(Array.from(b.trace)).toEqual(Array.from(a.trace));
+    });
+
+    test("a clone that diverges leaves the original alone", () => {
+        const ref = runScenario(30);
+        const a = runScenario(30);
+        const b = a.clone();
+        // Push the copy somewhere else: if it shared the delay line, trace or
+        // nudge marks with a, a would no longer match ref
+        b.nudge(1);
+        b.delay = 200;
+        for (let k = 0; k < 3000; k++) {
+            ref.step();
+            a.step();
+            b.step();
+        }
+        expect(b.th).not.toBe(a.th);
+        expect(a.th).toBe(ref.th);
+        expect(a.x).toBe(ref.x);
+        expect(Array.from(a.trace)).toEqual(Array.from(ref.trace));
+        expect(Array.from(a.nudgeMarks)).toEqual(Array.from(ref.nudgeMarks));
     });
 
     test("a reset after a fall holds again at a safe delay", () => {
