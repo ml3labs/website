@@ -1,0 +1,11 @@
+.ink {
+    fill: var(--ink);
+}
+
+.accent {
+    fill: var(--accent);
+}
+
+.three {
+    color: var(--accent);
+}

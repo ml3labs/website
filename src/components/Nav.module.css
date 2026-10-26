@@ -1,0 +1,117 @@
+/* Phones: the mark and the call to action on one line, the four links in
+   a ruled row under them. Wide: one 60px row, the links starting at the
+   column rule. */
+
+.header {
+    position: relative;
+}
+
+.navRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "brand cta"
+        "links links";
+    align-items: center;
+}
+
+.brand {
+    grid-area: brand;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 var(--pad);
+    color: var(--ink);
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+}
+.brand:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: -8px;
+}
+
+.brandMark {
+    display: block;
+    width: 31px;
+    height: 22px;
+}
+
+.navCta {
+    grid-area: cta;
+    margin-right: var(--pad);
+}
+
+.linksWrap {
+    grid-area: links;
+    position: relative;
+    border-top: 1px solid var(--rule);
+}
+.linksWrap ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.linksWrap li + li {
+    border-left: 1px solid var(--rule);
+}
+
+/* No box of its own, so the crosses sit on linksWrap's rule */
+.linksCrosses {
+    display: contents;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 1px;
+}
+.navLink:hover,
+.navLink[aria-current="page"] {
+    text-decoration-line: underline;
+}
+.navLink:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: -6px;
+}
+
+@media (min-width: 900px) {
+    .navRow {
+        grid-template-columns: var(--c3) 1fr auto;
+        grid-template-areas: "brand links cta";
+        height: 60px;
+    }
+    .brand {
+        height: 60px;
+    }
+    .linksWrap {
+        border-top: 0;
+        padding-left: var(--pad);
+    }
+    .linksCrosses {
+        display: none;
+    }
+    .linksWrap ul {
+        display: flex;
+        gap: 30px;
+    }
+    .linksWrap li + li {
+        border-left: 0;
+    }
+    .navLink {
+        height: 60px;
+        font-size: 15px;
+    }
+}

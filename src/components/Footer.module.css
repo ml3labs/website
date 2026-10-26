@@ -1,0 +1,78 @@
+.footer {
+    composes: row from "./Grid.module.css";
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 14px;
+    padding: 28px var(--pad) 40px;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.mark {
+    display: block;
+    width: 25px;
+    height: 18px;
+}
+
+.note {
+    margin: 0;
+}
+
+.links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    justify-self: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-self: start;
+    padding: 2px 0;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: none;
+}
+.link:hover,
+.link:focus-visible {
+    background: var(--ink);
+    color: var(--bg);
+    text-decoration: none;
+}
+.link:focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 2px;
+}
+
+@media (min-width: 900px) {
+    .footer {
+        grid-template-columns: var(--c3) 1fr auto;
+        align-items: center;
+        padding: 32px var(--late) 48px 0;
+    }
+    .brand,
+    .note,
+    .links {
+        margin: 0 var(--pad);
+    }
+}
