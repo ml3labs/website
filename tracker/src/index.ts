@@ -34,6 +34,7 @@ export interface Env {
     DB: D1Database;
     DISCORD_WEBHOOK_URL: string;
     DEV_VISITS: string;
+    LIMIT: RateLimit;
 }
 
 type Body = Record<string, unknown>;
@@ -67,11 +68,15 @@ export default {
             return reply({ status: 404, body: { error: "not found" } });
 
         // Anything but a browser can claim any origin; this only keeps
-        // other sites' pages from sending visits
+        // other sites' pages from sending visits. The rate limit keeps a
+        // script from flooding the channel.
         const origin = req.headers.get("Origin") ?? "";
         const dev = env.DEV_VISITS === "on" && DEV_ORIGIN.test(origin);
         if (origin !== SITE && !dev)
             return reply({ status: 403, body: { error: "origin" } });
+        const ip = req.headers.get("CF-Connecting-IP") ?? "";
+        if (!(await env.LIMIT.limit({ key: `${ip}${path}` })).success)
+            return reply({ status: 429, body: { error: "slow down" } });
 
         if (Number(req.headers.get("Content-Length")) > MAX_BODY)
             return reply({ status: 413, body: { error: "too large" } });
