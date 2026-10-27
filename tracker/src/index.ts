@@ -33,12 +33,17 @@ import { isBot, parseUA } from "./ua";
 export interface Env {
     DB: D1Database;
     DISCORD_WEBHOOK_URL: string;
+    DEV_VISITS: string;
 }
 
 type Body = Record<string, unknown>;
 type Result = { status: number; body: unknown };
 
 const ID = /^[A-Za-z0-9-]{8,64}$/;
+// A dev server on this machine or the local network, reached the ways
+// next.config.ts allows. Taken while DEV_VISITS is "on", and marked "dev".
+const DEV_ORIGIN =
+    /^http:\/\/(localhost|127\.0\.0\.1|10(\.\d+){3}|192\.168(\.\d+){2}|[\w-]+\.local)(:\d+)?$/;
 
 const OK: Result = { status: 200, body: { ok: true } };
 
@@ -64,7 +69,8 @@ export default {
         // Anything but a browser can claim any origin; this only keeps
         // other sites' pages from sending visits
         const origin = req.headers.get("Origin") ?? "";
-        if (origin !== SITE)
+        const dev = env.DEV_VISITS === "on" && DEV_ORIGIN.test(origin);
+        if (origin !== SITE && !dev)
             return reply({ status: 403, body: { error: "origin" } });
 
         if (Number(req.headers.get("Content-Length")) > MAX_BODY)
@@ -84,7 +90,7 @@ export default {
         const site = new URL(origin).host;
         return reply(
             path === "/visit"
-                ? await visit(req, env, body as Body, site)
+                ? await visit(req, env, body as Body, dev ? "dev" : "", site)
                 : await events(env, body as Body, site),
         );
     },
@@ -94,6 +100,7 @@ async function visit(
     req: Request,
     env: Env,
     b: Body,
+    label: string,
     site: string,
 ): Promise<Result> {
     const sid = text(b.sid, 64);
@@ -163,7 +170,7 @@ async function visit(
         {
             n: row.n,
             visits: row.visits,
-            label: "",
+            label,
             city: cf?.city ?? null,
             region: cf?.region ?? null,
             country: cf?.country ?? null,
