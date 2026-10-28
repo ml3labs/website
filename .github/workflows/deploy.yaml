@@ -51,8 +51,12 @@ jobs:
             - name: Test
               run: npm test
 
+            # The visit tracker's address, a repository variable; the site
+            # tracks nothing while it is unset
             - name: Build
               run: npm run build
+              env:
+                  NEXT_PUBLIC_TRACKER_URL: ${{ vars.TRACKER_URL }}
 
             # No .nojekyll: a Pages site deployed from Actions serves the
             # artifact as-is, without a Jekyll pass to hide _next/ from, and

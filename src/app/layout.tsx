@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Late } from "@/components/Grid";
 import { Nav } from "@/components/Nav";
+import { Tracker } from "@/components/Tracker";
 
 import styles from "./layout.module.css";
 import {
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                         </main>
                         <Footer />
                     </div>
+                    <Tracker />
                 </div>
             </body>
         </html>

@@ -1,0 +1,4 @@
+node_modules/
+.wrangler/
+# Secrets for wrangler dev: the Discord webhook
+.dev.vars

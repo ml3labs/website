@@ -1,0 +1,33 @@
+{
+    // The site's visitor tracker: takes a beacon from each visit, keeps the
+    // count in D1 and posts the visit to Discord.
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "ml3-tracker",
+    "main": "src/index.ts",
+    "compatibility_date": "2026-10-01",
+    "observability": { "enabled": true },
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "ml3-tracker",
+            // From `wrangler d1 create ml3-tracker`
+            "database_id": "c67177e8-5e8a-4a47-9adc-435415c467cf",
+        },
+    ],
+    "vars": {
+        // Visits come from https://ml3labs.com (SITE in src/embed.ts) and,
+        // when this is "on", from a dev server on the local network
+        // (localhost, 192.168.x.x): counted like the site's, with "dev" on
+        // the post. .dev.vars turns it on for `npm run dev`.
+        "DEV_VISITS": "",
+    },
+    // Each address may send 60 of each beacon a minute
+    "ratelimits": [
+        {
+            "name": "LIMIT",
+            "namespace_id": "1001",
+            "simple": { "limit": 60, "period": 60 },
+        },
+    ],
+    // Secret, set with `wrangler secret put DISCORD_WEBHOOK_URL`
+}
