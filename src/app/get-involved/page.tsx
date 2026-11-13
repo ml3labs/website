@@ -9,13 +9,15 @@ export default function GetInvolvedPage() {
     return (
         <SectionPage
             slug="get-involved"
-            caption="Get involved before the December 1 club application deadline."
             label="Join ML³"
             headline={{
                 text: "Fill out the interest form.",
                 href: INTEREST_FORM_URL || undefined,
             }}
-            links={[{ label: "Email us", href: `mailto:${EMAIL}` }]}
+            links={[
+                { label: "Interest form", href: INTEREST_FORM_URL },
+                { label: "Email us", href: `mailto:${EMAIL}` },
+            ]}
         />
     );
 }

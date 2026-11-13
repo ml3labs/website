@@ -60,6 +60,14 @@ export function ButtonLink({
         </>
     );
 
+    if (!href) {
+        return (
+            <button type="button" className={cls} disabled>
+                {content}
+            </button>
+        );
+    }
+
     return external ? (
         <a href={href} className={cls} {...rest}>
             {content}
