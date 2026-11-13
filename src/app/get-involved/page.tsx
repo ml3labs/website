@@ -6,11 +6,12 @@ import { sectionMetadata } from "../shared-metadata";
 export const metadata = sectionMetadata("get-involved");
 
 export default function GetInvolvedPage() {
-    // The landing page's calls to action lead here, so until the page has
-    // content it still offers a way to reach the club
     return (
         <SectionPage
             slug="get-involved"
+            caption="Interest form coming soon. Questions? Email us."
+            label="Join ML³"
+            headline={{ text: "Interest form coming soon." }}
             links={[{ label: "Email us", href: `mailto:${EMAIL}` }]}
         />
     );

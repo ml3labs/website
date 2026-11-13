@@ -41,7 +41,7 @@ export const SECTIONS: readonly Section[] = [
     {
         slug: "get-involved",
         title: "Get involved",
-        line: "How to join, and what members work on, will go here.",
+        line: "Help us build McMaster Low Latency Labs. McMaster's new club applications close December 1, 2026. We're preparing an interest form so you can get involved. In the meantime, reach out by email.",
     },
 ];
 
