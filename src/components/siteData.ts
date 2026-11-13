@@ -1,3 +1,6 @@
+// Add the supplied form URL here to activate the Get involved status link.
+export const INTEREST_FORM_URL = "";
+
 export const EMAIL = "contact@ml3labs.com";
 export const LINKEDIN = "https://www.linkedin.com/company/ml3labs/";
 export const GITHUB = "https://github.com/ml3labs";
@@ -41,7 +44,7 @@ export const SECTIONS: readonly Section[] = [
     {
         slug: "get-involved",
         title: "Get involved",
-        line: "Help us build McMaster Low Latency Labs. McMaster's new club applications close December 1, 2026. We're preparing an interest form so you can get involved. In the meantime, reach out by email.",
+        line: "Help us build McMaster Low Latency Labs. McMaster's new club applications close December 1, 2026. Register your interest in joining the club. Questions? Reach out by email.",
     },
 ];
 

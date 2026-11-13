@@ -1,5 +1,5 @@
 import { SectionPage } from "@/components/SectionPage";
-import { EMAIL } from "@/components/siteData";
+import { EMAIL, INTEREST_FORM_URL } from "@/components/siteData";
 
 import { sectionMetadata } from "../shared-metadata";
 
@@ -9,9 +9,12 @@ export default function GetInvolvedPage() {
     return (
         <SectionPage
             slug="get-involved"
-            caption="Interest form coming soon. Questions? Email us."
+            caption="Get involved before the December 1 club application deadline."
             label="Join ML³"
-            headline={{ text: "Interest form coming soon." }}
+            headline={{
+                text: "Fill out the interest form.",
+                href: INTEREST_FORM_URL || undefined,
+            }}
             links={[{ label: "Email us", href: `mailto:${EMAIL}` }]}
         />
     );
