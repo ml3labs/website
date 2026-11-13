@@ -10,6 +10,8 @@ export const CONTACTS = [
     { label: EMAIL, href: `mailto:${EMAIL}` },
     { label: "LinkedIn", href: LINKEDIN },
     { label: "GitHub", href: GITHUB },
+    { label: "Discord", href: "https://discord.gg/77yQQQVSmK" },
+    { label: "Instagram", href: "https://www.instagram.com/ml3labs" },
 ] as const;
 
 export type Section = {
