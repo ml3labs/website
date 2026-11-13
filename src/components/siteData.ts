@@ -1,5 +1,5 @@
-// Add the supplied form URL here to activate the Get involved status link.
-export const INTEREST_FORM_URL = "";
+export const INTEREST_FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLScR62grCnu7GL8sYnS5nLsRQPFuFRvChbomdFpKpt1FX1PA4g/viewform?usp=preview";
 
 export const EMAIL = "contact@ml3labs.com";
 export const LINKEDIN = "https://www.linkedin.com/company/ml3labs/";
