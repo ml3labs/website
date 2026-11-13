@@ -56,9 +56,17 @@ export function ButtonLink({
     const content = (
         <>
             {children}
-            <Arrow up={external} />
+            <Arrow up={external || !href} />
         </>
     );
+
+    if (!href) {
+        return (
+            <button type="button" className={cls} disabled>
+                {content}
+            </button>
+        );
+    }
 
     return external ? (
         <a href={href} className={cls} {...rest}>
