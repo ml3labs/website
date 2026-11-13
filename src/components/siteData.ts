@@ -44,7 +44,7 @@ export const SECTIONS: readonly Section[] = [
     {
         slug: "get-involved",
         title: "Get involved",
-        line: "Register your interest in joining the club by December 1, 2026. Questions? Reach out by email.",
+        line: "Register your interest in joining the club by December 1, 2026.\nQuestions? Reach out by email.",
     },
 ];
 

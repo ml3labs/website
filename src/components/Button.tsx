@@ -56,7 +56,7 @@ export function ButtonLink({
     const content = (
         <>
             {children}
-            <Arrow up={external} />
+            <Arrow up={external || !href} />
         </>
     );
 

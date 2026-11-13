@@ -136,7 +136,6 @@
 
 .btn:disabled {
     cursor: default;
-    opacity: 0.55;
     background: transparent;
     color: var(--ink);
 }
