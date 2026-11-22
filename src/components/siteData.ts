@@ -1,3 +1,6 @@
+export const INTEREST_FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLScR62grCnu7GL8sYnS5nLsRQPFuFRvChbomdFpKpt1FX1PA4g/viewform?usp=preview";
+
 export const EMAIL = "contact@ml3labs.com";
 export const LINKEDIN = "https://www.linkedin.com/company/ml3labs/";
 export const GITHUB = "https://github.com/ml3labs";
@@ -7,6 +10,8 @@ export const CONTACTS = [
     { label: EMAIL, href: `mailto:${EMAIL}` },
     { label: "LinkedIn", href: LINKEDIN },
     { label: "GitHub", href: GITHUB },
+    { label: "Discord", href: "https://discord.gg/77yQQQVSmK" },
+    { label: "Instagram", href: "https://www.instagram.com/ml3labs" },
 ] as const;
 
 export type Section = {
@@ -41,7 +46,7 @@ export const SECTIONS: readonly Section[] = [
     {
         slug: "get-involved",
         title: "Get involved",
-        line: "How to join, and what members work on, will go here.",
+        line: "Register your interest in joining the club by December 1, 2026.\nQuestions? Reach out by email.",
     },
 ];
 

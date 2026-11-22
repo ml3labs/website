@@ -30,3 +30,12 @@ public/         # Served as-is, including CNAME
   media/brand/  # Logo: light and dark PNGs, and the mark as SVG
 assets/fonts/   # Fonts for the link-preview image (OFL)
 ```
+
+To preview on another device connected to the same network:
+
+```
+npm run dev -- --hostname 0.0.0.0
+```
+
+Open `http://<your-computer-LAN-IP>:3000/get-involved/` on that device.
+Keep the server running while sharing the preview.

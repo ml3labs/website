@@ -133,3 +133,13 @@
         transform: none;
     }
 }
+
+.btn:disabled {
+    cursor: default;
+    background: transparent;
+    color: var(--ink);
+}
+.btn:disabled .arrow,
+.btn:disabled .arrowUp {
+    transform: none;
+}

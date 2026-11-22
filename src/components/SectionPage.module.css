@@ -42,6 +42,7 @@
 }
 
 .statusLine {
+    white-space: pre-line;
     max-width: 34em;
     margin: 12px 0 0;
     color: var(--ink-muted);
@@ -103,6 +104,7 @@
         font-size: 38px;
     }
     .statusLine {
+        white-space: pre-line;
         font-size: 19px;
     }
 }
